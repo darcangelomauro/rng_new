@@ -12,6 +12,7 @@
 #include <gsl/gsl_eigen.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_cblas.h>
+#include <gsl/gsl_rng.h>
 #include <gsl/gsl_sort_vector.h>
 #include "matop.h"
 
@@ -64,6 +65,126 @@ void fprintmat_complex(gsl_matrix_complex *m, int n, int k, FILE* f)
         fprintf(f, "\n");
     }
 }
+
+// generates nxn hermitian matrix H (mode 0) or traceless hermitian matrix L (mode 1)
+// with entries between 0 and 1
+void generate_HL(gsl_matrix_complex* m, int mode, int n, gsl_rng* r)
+{
+    // generate random hermitian matrix
+    for(int i=0; i<n; i++)
+    {
+
+        // off diagonal part
+        for(int j=0; j<i; j++)
+        {
+            double x, y;
+
+            // generate x and y uniformly between -1 and 1
+            x = -1 + 2*gsl_rng_uniform(r);
+            y = -1 + 2*gsl_rng_uniform(r);
+
+            gsl_matrix_complex_set(m, i, j, gsl_complex_rect(x,y));
+            gsl_matrix_complex_set(m, j, i, gsl_complex_rect(x,-y));
+        }
+
+
+        // diagonal part
+        double z;
+        z = -1 + 2*gsl_rng_uniform(r);
+        gsl_matrix_complex_set(m, i, i, gsl_complex_rect(z,0.));
+
+    }
+
+
+
+    // turn traceless if mode 1
+    if(mode)
+    {
+        //antihermitian we don't need, the i can be included at any time
+        //gsl_matrix_complex_scale(m, gsl_complex_rect(0.,1.));
+
+        //render traceless
+        traceless(m, n);
+    }
+
+    return;
+}
+
+
+void matrix_power(gsl_matrix_complex* m, int n, gsl_matrix_complex* res)
+{
+    int size = m->size1;
+    gsl_matrix_complex* m_ = gsl_matrix_complex_alloc(size, size);
+    gsl_matrix_complex_memcpy(m_, m);
+    
+    // res equals unity
+    for(int i=0; i<size; i++)
+    {
+        for(int j=0; j<size; j++)
+        {
+            if(i==j)
+                gsl_matrix_complex_set(res, i, j, GSL_COMPLEX_ONE);
+            else
+                gsl_matrix_complex_set(res, i, j, GSL_COMPLEX_ZERO);
+        }
+    }
+    
+    gsl_matrix_complex* r1 = gsl_matrix_complex_alloc(size, size);
+    gsl_matrix_complex* mm = gsl_matrix_complex_alloc(size, size);
+    while(n)
+    {
+        if(n % 2 == 1)
+        {
+            gsl_matrix_complex_memcpy(r1, res);
+            gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, r1, m_, GSL_COMPLEX_ZERO, res);
+            n -= 1;
+        }
+        if(n)
+        {
+            gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, m_, m_, GSL_COMPLEX_ZERO, mm);
+            gsl_matrix_complex_memcpy(m_, mm);
+
+            n /= 2;
+        }
+    }
+    gsl_matrix_complex_free(m_);
+    gsl_matrix_complex_free(r1);
+    gsl_matrix_complex_free(mm);
+}
+
+// calculates m[0]*m[1]*...*m[n-1] and outputs in res
+void matrix_multiprod(gsl_matrix_complex** m, int n, gsl_matrix_complex* res)
+{
+    if(n<1)
+    {
+        printf("Error, give at least one matrix\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if(n==1)
+        gsl_matrix_complex_memcpy(res, m[0]);
+
+    else
+    {
+        int size = res->size1;
+        gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, m[0], m[1], GSL_COMPLEX_ZERO, res);
+
+        for(int i=2; i<n; i++)
+        {
+            gsl_matrix_complex* r1 = gsl_matrix_complex_alloc(size, size);
+            gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, res, m[i], GSL_COMPLEX_ZERO, r1);
+            gsl_matrix_complex_memcpy(res, r1);
+            gsl_matrix_complex_free(r1);
+        }
+    }
+}
+
+
+
+
+
+
+
 
 // dispherm gives a measure of how much
 // the matrix m is distant from being hermitian

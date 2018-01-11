@@ -4,6 +4,7 @@
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_matrix_complex_double.h>
 #include <gsl/gsl_vector_double.h>
+#include <gsl/gsl_rng.h>
 
 /* macro for disk memory mapping */
 #define Mapmalloc(number, type, filename, fd)   \
@@ -16,6 +17,9 @@
 
 extern void printmat_complex(gsl_matrix_complex *m, int n, int k);
 extern void fprintmat_complex(gsl_matrix_complex *m, int n, int k, FILE* f);
+extern void generate_HL(gsl_matrix_complex* m, int mode, int n, gsl_rng* r);
+extern void matrix_power(gsl_matrix_complex* m, int n, gsl_matrix_complex* res);
+extern void matrix_multiprod(gsl_matrix_complex** m, int n, gsl_matrix_complex* res);
 extern void dispherm(gsl_matrix_complex* m, int n);
 extern void diag(gsl_matrix_complex* m, gsl_vector* eval, int n);
 extern gsl_complex trace(gsl_matrix_complex* m);

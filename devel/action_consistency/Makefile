@@ -21,7 +21,7 @@ all: rmxeq mkdep mkxeq
 
 MAIN = action_consistency
 
-UTILS = statistics matop update fileop geom01 geom10 geom20 geom02 geom11 geom03 geom13 geom31 geom22 geom40 geom04 data dirac 
+UTILS = update matop action geom01 geom10 geom20 geom02 geom11 geom03 geom13 geom31 geom22 geom40 geom04 dirac 
 
 
 MODULES = $(UTILS)
@@ -49,7 +49,7 @@ LIBPATH = /home/pmxmd10/gsl/lib
 # scheduling and optimization options (such as -DSSE -DSSE2 -DP4)
  
 CFLAGS = -std=c99 -pedantic -fstrict-aliasing -Wall -Wno-long-long -O \
-         -Werror -fPIC -DHAVE_INLINE 
+         -Werror -fPIC -DHAVE_INLINE -g 
  
 
 ############################## do not change ###################################

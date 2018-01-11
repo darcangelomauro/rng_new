@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <gsl/gsl_rng.h>
 
-extern void build_filename(char* name, char* directory, char* extension, double num);
 extern char* generate_code(int n, gsl_rng* r);
 extern char* alloc_coded_filename(char* suffix, char* code);
 extern char* alloc_folder_filename(char* suffix, char* folder);

@@ -22,11 +22,11 @@
 #include "geom.h"
 
 #define P_dirac build_dirac
-#define P_actionD2_b actionD2_bruteforce;
-#define P_actionD4D2_b actionD4D2_bruteforce;
+#define P_actionD2_b actionD2_bruteforce
+#define P_actionD4D2_b actionD4D2_bruteforce
 #define C_dirac build_dirac()
-#define C_actionD2_b actionD2_bruteforce();
-#define C_actionD4D2_b actionD4D2_bruteforce();
+#define C_actionD2_b actionD2_bruteforce()
+#define C_actionD4D2_b actionD4D2_bruteforce()
 //#define P_dirac_b build_dirac_bruteforce
 //#define C_dirac_b build_dirac_bruteforce()
 

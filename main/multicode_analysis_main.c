@@ -178,14 +178,14 @@ int main(int argc, char** argv)
         double varS = gsl_stats_variance(bin_S, 1, nbin);
         double meanobs = gsl_stats_mean(bin_obs, 1, nbin);
         double varobs = gsl_stats_variance(bin_obs, 1, nbin);
-        fprintf(foutput, "%lf %lf %lf %lf %lf ", G_, meanS, sqrt(varS/(double)nbin), meanobs, sqrt(varobs/(double)nbin));
+        fprintf(foutput, "%.15lf %.15lf %.15lf %.15lf %.15lf %.15lf %.15lf ", G_, meanS, sqrt(varS/(double)nbin), varS, meanobs, sqrt(varobs/(double)nbin), varobs);
         for(int j=0; j<nH_; j++)
         {
             double meantr = gsl_stats_mean(bin_tr[j], 1, nbin);
             double vartr = gsl_stats_variance(bin_tr[j], 1, nbin);
             double meantr2 = gsl_stats_mean(bin_tr2[j], 1, nbin);
             double vartr2 = gsl_stats_variance(bin_tr2[j], 1, nbin);
-            fprintf(foutput, "%lf %lf %lf %lf ", meantr, sqrt(vartr/(double)nbin), meantr2, sqrt(vartr2/(double)nbin));
+            fprintf(foutput, "%.15lf %.15lf %.15lf %.15lf %.15lf %.15lf ", meantr, sqrt(vartr/(double)nbin), vartr, meantr2, sqrt(vartr2/(double)nbin), vartr2);
         }
         fprintf(foutput, "\n");
 

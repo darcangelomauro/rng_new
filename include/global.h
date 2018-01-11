@@ -32,7 +32,7 @@
 
 // GLOBAL VARIABLES ********************************************************
 
-#define GEOM20
+#define GEOM40
 
 EXTERN int dim;
 #ifndef GAP
@@ -50,10 +50,9 @@ EXTERN int Nsw;             // number of simulation sweeps
 EXTERN int Ntherm;          // number of thermalization sweeps
 
 // H and L matrices
-EXTERN gsl_matrix_complex** H;
+EXTERN gsl_matrix_complex** MAT;
 EXTERN double* tr;     //this is for the traces of the H matrices
 EXTERN double* tr2;    //this is fot the traces squared of the H matrices
-EXTERN gsl_matrix_complex** L;          
 
 // displacement matrix for metropolis move
 // (just an auxiliary matrix but it is needed
@@ -63,8 +62,7 @@ EXTERN gsl_matrix_complex* M;
 EXTERN int dimG;
 EXTERN int dimD;
 EXTERN gsl_matrix_complex* DIRAC;
-EXTERN gsl_matrix_complex** gammaH;
-EXTERN gsl_matrix_complex** gammaL;          
+EXTERN gsl_matrix_complex** gamma;
 
 #endif
 

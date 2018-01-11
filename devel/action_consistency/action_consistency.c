@@ -8,10 +8,11 @@
 #include "global.h"
 #include "macros.h"
 #include "matop.h"
+#include "action.h"
+#include "update.h"
 
 #define REP 500
-#define ACTION_B actionD4D2_bruteforce
-#define ACTION actionD4D2t22
+#define ACTION_B P_actionD2_b
 
 int main()
 {
@@ -23,41 +24,50 @@ int main()
     gsl_rng_set(r, time(NULL));
 
     // file
-    FILE* fS = fopen("D4D2t22.txt", "w");
-    FILE* f2 = fopen("D4D2t22_time.txt", "w");
+    FILE* fS = fopen("D2t40.txt", "w");
+    FILE* f2 = fopen("D2t40_time.txt", "w");
 
-    // action vector
-    double vecS[14];
-    int control[14] = {1,1,0,0,0,0,0,0,0,0,0,0,0,0};
-    
     init_data();
     GEOM_CHECK();
-    init_hot(ACTION, P_gamma, r);
+    init_cold(ACTION_B, P_gamma);
+    fprintf(fS, "%.15lf\n", S);
     
     clock_t start1;
     clock_t cumul1 = 0;
     clock_t start2;
     clock_t cumul2 = 0;
     // simulation
+    double Sdelta; 
+    double dS = S; 
     for(int i=0; i<REP; i++)
     {
-        for(int k=0; k<nH; k++)
-            generate_HL(H[k], 0, dim, r);  
+
+        // decide what matrix gets updated
+        int uM = (int)(nHL*gsl_rng_uniform(r));
+        while(uM == nHL)
+            uM = (int)(nHL*gsl_rng_uniform(r));
+
+        gsl_matrix_complex* dM = gsl_matrix_complex_alloc(dim, dim);
+        if(uM < nH)
+            generate_HL(dM, 0, dim, r);  
+        else
+            generate_HL(dM, 1, dim, r);  
 
 
-        vecS[0] = 0.;
-        vecS[1] = 0.;
-        
         start1 = clock();
-        ACTION(vecS, control);
+        Sdelta = delta2(dM, uM);
+        dS += Sdelta;
         cumul1 += clock()-start1;
+        printf("%lf %lf\n", dS, Sdelta);
+        
+        gsl_matrix_complex_add(MAT[uM], dM);
+        free(dM);
 
         start2 = clock();
         gsl_complex cS = ACTION_B();
         cumul2 += clock()-start2;
         
-        fprintf(fS, "%.15lf %.15lf %.15lf %.15lf\n", vecS[0], GSL_REAL(cS), vecS[1], GSL_IMAG(cS));
-
+        fprintf(fS, "%.15lf %.15lf\n", dS, GSL_REAL(cS));
     }
 
     fprintf(f2, "nH = %d, nL = %d, REP = %d, n = %d:\n", nH, nL, REP, dim);

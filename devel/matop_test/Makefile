@@ -19,7 +19,7 @@ all: rmxeq mkdep mkxeq
 
 # main programs and required modules 
 
-MAIN = renormalize_test
+MAIN = renormalize_test power_test multiprod_test
 
 UTILS = matop 
 

@@ -267,20 +267,15 @@ gamma_prod = indprod(gamma, p, q)
 for item in gamma_prod:
     print("gamma_" + str(item[0]))
     print(item[1])
-print(gamma_prod[0][1]*gamma_prod[0][1])
-print(gamma_prod[0][1]*gamma_prod[4][1])
-print(gamma_prod[0][1]*gamma_prod[0][1]*gamma_prod[0][1]*gamma_prod[0][1])
-print(gamma_prod[0][1]*gamma_prod[0][1]*gamma_prod[0][1]*gamma_prod[4][1])
-print(gamma_prod[0][1]*gamma_prod[0][1]*gamma_prod[4][1]*gamma_prod[4][1])
-print(gamma_prod[0][1]*gamma_prod[4][1]*gamma_prod[0][1]*gamma_prod[4][1])
-print(gamma_prod[0][1]*gamma_prod[4][1]*gamma_prod[4][1]*gamma_prod[4][1])
 #for item in gamma_prod:
     #print("gamma_" + str(item[0]) + "*chiral")
     #print(item[1]*chiral)
-for i in range(len(gamma)):
-    for j in range(len(gamma)):
-        print("{gamma_" + str(i) + ",gamma_" + str(j) + "}")
-        print(gamma[i]*gamma[j] + gamma[j]*gamma[i])
+for i in range(len(gamma_prod)):
+    for j in range(len(gamma_prod)):
+        print("{gamma_" + str(gamma_prod[i][0]) + ",gamma_" + str(gamma_prod[j][0]) + "}")
+        print(gamma_prod[i][1]*gamma_prod[j][1] + gamma_prod[j][1]*gamma_prod[i][1])
+
+'''
 
 print("************code***********")
 for matrix in gamma_prod:
@@ -321,4 +316,4 @@ for matrix in gamma_prod:
     print(" ")
 
 
-
+'''

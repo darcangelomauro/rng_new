@@ -8,15 +8,6 @@
 #define M_PI 3.14159265358979
 #endif
 
-void build_filename(char* name, char* directory, char* extension, double num)
-{
-    char buffer[200];
-    snprintf(buffer, 200, "%.2lf", num);
-    strcpy(name, directory);
-    strcat(name, buffer);
-    strcat(name, extension);
-}
-
 char* generate_code(int n, gsl_rng* r)
 {
     char* code = malloc((n+1)*sizeof(char));
