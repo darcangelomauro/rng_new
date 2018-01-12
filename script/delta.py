@@ -61,8 +61,10 @@ n = int(n)
 
 print('gsl_complex pfac;')
 print('int jfac;')
+print('gsl_complex res = GSL_COMPLEX_ZERO;')
 
 for s in range(1, n+1):
+    print('// CASE: s=' + str(s))
     terms = []
     
     '''
@@ -76,7 +78,7 @@ for s in range(1, n+1):
         print('int* i' + str(s) + ' = malloc(' + str(n-s) + '*sizeof(int));')
     for num_i in range(n-s):
         i.append('i' + str(s) + '[' + str(num_i) + ']')
-        print('for(' + i[num_i] + '=0; ' + i[num_i] + '<' + str(n-s) + '; ' + i[num_i] + '++)')
+        print('for(' + i[num_i] + '=0; ' + i[num_i] + '<nHL; ' + i[num_i] + '++)')
         print('{')
 
         
@@ -332,15 +334,20 @@ for s in range(1, n+1):
         for idx_12 in range(2, len(term)):
             compl.append('tr' + ''.join(term[idx_12]))
         
+        print('res = gsl_complex_add(res, ', end='') 
         if len(compl) == 3:
-            print('gsl_complex_mul(gsl_complex_mul(gsl_complex_mul(' + compl[0] + ', ' + compl[1] + '), ' + compl[2] + '), pfac);')
+            print('gsl_complex_mul(gsl_complex_mul(gsl_complex_mul(' + compl[0] + ', ' + compl[1] + '), ' + compl[2] + '), pfac)', end='')
         elif len(compl) == 2:
-            print('gsl_complex_mul(gsl_complex_mul(' + compl[0] + ', ' + compl[1] + '), pfac);')
+            print('gsl_complex_mul(gsl_complex_mul(' + compl[0] + ', ' + compl[1] + '), pfac)', end='')
         elif len(compl) == 1:
-            print('gsl_complex_mul(' + compl[0] + ', pfac);')
+            print('gsl_complex_mul(' + compl[0] + ', pfac)', end='')
+        print(');')
 
     for val in range(n-s):
         print('}')
+    
+    if n-s:
+        print('free(i' + str(s) + ');')
 
 
 
