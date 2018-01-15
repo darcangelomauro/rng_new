@@ -28,17 +28,15 @@ void geom_check11()
 // build gamma matrices
 void init_gamma11()
 {
+    for(int i=0; i<nHL; i++)
+        gamma[i] = gsl_matrix_complex_calloc(dimG, dimG);
 
-    gamma[0] = gsl_matrix_complex_calloc(2, 2);
-    gamma[0] = gsl_matrix_complex_calloc(2, 2);
-
-
-    // gamma 1
-    gsl_matrix_complex_set(gamma[0], 0, 0, gsl_complex_rect(1., 0.));
-    gsl_matrix_complex_set(gamma[0], 1, 1, gsl_complex_rect(-1., 0.));
-
-    // gamma 2
-    gsl_matrix_complex_set(gamma[1], 0, 1, gsl_complex_rect(1., 0.));
-    gsl_matrix_complex_set(gamma[1], 1, 0, gsl_complex_rect(-1., 0.));
+    // gamma0
+    gsl_matrix_complex_set(gamma[0], 0, 0, gsl_complex_rect(1, 0));
+    gsl_matrix_complex_set(gamma[0], 1, 1, gsl_complex_rect(-1, 0));
+     
+    // gamma1
+    gsl_matrix_complex_set(gamma[1], 0, 1, gsl_complex_rect(0.0, 1.0));
+    gsl_matrix_complex_set(gamma[1], 1, 0, gsl_complex_rect(0.0, -1.0));
+     
 }
-

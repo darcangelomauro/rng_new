@@ -24,8 +24,8 @@ int main()
     gsl_rng_set(r, time(NULL));
 
     // file
-    FILE* fS = fopen("D4D2t20.txt", "w");
-    FILE* f2 = fopen("D4D2t20_time.txt", "w");
+    FILE* fS = fopen("D4D2t40.txt", "w");
+    FILE* f2 = fopen("D4D2t40_time.txt", "w");
 
     init_data();
     GEOM_CHECK();
@@ -57,10 +57,12 @@ int main()
 
         start1 = clock();
         dS1 += G*delta2_auto(dM, uM) + delta4(dM, uM);
+        //dS1 += delta2_auto(dM, uM);
         cumul1 += clock()-start1;
         
         start2 = clock();
         dS2 += G*delta2_auto(dM, uM) + delta4(dM, uM);
+        //dS2 += delta2_auto(dM, uM);
         cumul2 += clock()-start2;
         
         gsl_matrix_complex_add(MAT[uM], dM);

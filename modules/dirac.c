@@ -29,7 +29,6 @@ void build_dirac()
         {
             commutator(MAT[i], a);
             tensor(gamma[i], a, b);
-            gsl_matrix_complex_scale(b, gsl_complex_rect(0., 1.));
             gsl_matrix_complex_add(DIRAC, b);
         }
     }

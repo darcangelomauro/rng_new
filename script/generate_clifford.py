@@ -86,7 +86,7 @@ def order_tuple(res):
         if (res[i][1].H == res[i][1]).all():
             herm.append((res[i][0] + "_H", res[i][1]))
         else:
-            antiherm.append((res[i][0] + "_A", res[i][1]))
+            antiherm.append((res[i][0] + "_A", 1j*res[i][1]))
 
     res = [item for item in herm]
     for item in antiherm:

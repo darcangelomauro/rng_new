@@ -25,6 +25,6 @@ void geom_check01()
 void init_gamma01()
 {
     gamma[0] = gsl_matrix_complex_calloc(1, 1);
-    gsl_matrix_complex_set(gamma[0], 0, 0, gsl_complex_rect(0., -1.));
+    gsl_matrix_complex_set(gamma[0], 0, 0, gsl_complex_rect(1., 0.));
 }
 
