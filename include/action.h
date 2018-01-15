@@ -8,4 +8,6 @@
 
 
 extern double delta2(gsl_matrix_complex* dM, int uM);
+extern double delta2_auto(gsl_matrix_complex* dM, int uM);
+extern double delta4(gsl_matrix_complex* dM, int uM);
 #endif

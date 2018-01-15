@@ -71,7 +71,7 @@ void init_data()
     }
 
     // initialize dimD
-    dimG = (int)pow(2., (cliff_p+cliff_q)/2);
+    dimG = (int)pow(2., (int)(cliff_p+cliff_q)/2);
     dimD = dimG*dim*dim;
 }
 
@@ -151,6 +151,7 @@ void init_cold(gsl_complex Sfunc(), void init_gamma())
 {
     //initialize H matrices to unity
     MAT = malloc(nHL*sizeof(gsl_matrix_complex*));
+    e = malloc(nHL*sizeof(int));
     tr = malloc(nH*sizeof(double));
     tr2 = malloc(nH*sizeof(double));
     for(int i=0; i<nHL; i++)
@@ -161,7 +162,10 @@ void init_cold(gsl_complex Sfunc(), void init_gamma())
             gsl_matrix_complex_set_identity(MAT[i]);
             tr[i] = dim;
             tr2[i] = dim;
+            e[i] = 1;
         }
+        else
+            e[i] = -1;
     }
 
     // allocate displacement matrix
@@ -199,6 +203,10 @@ void init_hot(gsl_complex Sfunc(), void init_gamma(), gsl_rng* r)
         MAT[i] = gsl_matrix_complex_calloc(dim, dim);
         int mode = (i >= nH);
         generate_HL(MAT[i], mode, dim, r);
+        if(!mode)
+            e[i] = 1;
+        else
+            e[i] = -1;
     }
     
     // allocate displacement matrix

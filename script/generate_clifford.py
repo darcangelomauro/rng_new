@@ -267,15 +267,16 @@ gamma_prod = indprod(gamma, p, q)
 for item in gamma_prod:
     print("gamma_" + str(item[0]))
     print(item[1])
-#for item in gamma_prod:
-    #print("gamma_" + str(item[0]) + "*chiral")
-    #print(item[1]*chiral)
+'''
+for item in gamma_prod:
+    print("gamma_" + str(item[0]) + "*chiral")
+    print(item[1]*chiral)
 for i in range(len(gamma_prod)):
     for j in range(len(gamma_prod)):
         print("{gamma_" + str(gamma_prod[i][0]) + ",gamma_" + str(gamma_prod[j][0]) + "}")
         print(gamma_prod[i][1]*gamma_prod[j][1] + gamma_prod[j][1]*gamma_prod[i][1])
-
 '''
+
 
 print("************code***********")
 for matrix in gamma_prod:
@@ -294,26 +295,19 @@ for matrix in gamma_prod:
             print("],", end="")
     print("])")
 print("*************code2*************")
-nH = 0
+print('void init_gamma' + str(p) + str(q) + '()')
+print('{')
+print('for(int i=0; i<nHL; i++)')
+print('gamma[i] = gsl_matrix_complex_calloc(dimG, dimG);')
+print('')
 for matrix in gamma_prod:
-    label = ""
-    if matrix[0].find("H") == -1:
-        label = "L"
-    else:
-        label = "H"
-        nH += 1
-    if label == "H":
-        idx = gamma_prod.index(matrix)
-    else:
-        idx = gamma_prod.index(matrix)-nH
+    idx = gamma_prod.index(matrix)
     size = int(math.sqrt(matrix[1].size))
-    print("    // gamma" + label + str(idx))
+    print("// gamma" + str(idx))
     for i in range(size):
         for j in range(size):
             a = matrix[1][i,j]
             if numpy.real(a) != 0 or numpy.imag(a) != 0:
-                print("    gsl_matrix_complex_set(gamma" + label + "[" + str(idx) + "], " + str(i) + ", " + str(j) + ", gsl_complex_rect(" + str(numpy.real(a)) + ", " + str(numpy.imag(a)) + "));")
+                print("gsl_matrix_complex_set(gamma[" + str(idx) + "], " + str(i) + ", " + str(j) + ", gsl_complex_rect(" + str(numpy.real(a)) + ", " + str(numpy.imag(a)) + "));")
     print(" ")
-
-
-'''
+print('}')

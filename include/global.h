@@ -32,7 +32,7 @@
 
 // GLOBAL VARIABLES ********************************************************
 
-#define GEOM40
+#define GEOM20
 
 EXTERN int dim;
 #ifndef GAP
@@ -51,6 +51,7 @@ EXTERN int Ntherm;          // number of thermalization sweeps
 
 // H and L matrices
 EXTERN gsl_matrix_complex** MAT;
+EXTERN int* e;
 EXTERN double* tr;     //this is for the traces of the H matrices
 EXTERN double* tr2;    //this is fot the traces squared of the H matrices
 
