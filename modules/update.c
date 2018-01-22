@@ -12,6 +12,8 @@
 #include "math.h"
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_sort_vector.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_cblas.h>
 #include "global.h"
 #include "macros.h"
 #include "data.h"
@@ -185,6 +187,48 @@ void init_cold(gsl_complex Sfunc(), void init_gamma())
     for(int i=0; i<nHL; i++)
         gamma[i] = gsl_matrix_complex_calloc(dimG, dimG);
     init_gamma();
+
+
+    // initialize gamma_table
+    gamma_table = malloc(5*sizeof(gsl_complex*));
+    gamma_table[0] = malloc(1*sizeof(gsl_complex));
+    gamma_table[1] = malloc(1*sizeof(gsl_complex));
+    gamma_table[2] = malloc(nHL*nHL*sizeof(gsl_complex));
+    gamma_table[3] = malloc(nHL*nHL*nHL*sizeof(gsl_complex));
+    gamma_table[4] = malloc(nHL*nHL*nHL*nHL*sizeof(gsl_complex));
+
+    for(int i=0; i<nHL; i++)
+    {
+        for(int j=0; j<nHL; j++)
+        {
+            gsl_matrix_complex* temp2 = gsl_matrix_complex_alloc(dimG, dimG);
+            gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, gamma[i], gamma[j], GSL_COMPLEX_ZERO, temp2);
+            for(int k=0; k<nHL; k++)
+            {
+                gsl_matrix_complex* temp3 = gsl_matrix_complex_alloc(dimG, dimG);
+                gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, temp2, gamma[k], GSL_COMPLEX_ZERO, temp3);
+                for(int l=0; l<nHL; l++)
+                {
+                    gsl_matrix_complex* temp4 = gsl_matrix_complex_alloc(dimG, dimG);
+                    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, temp3, gamma[l], GSL_COMPLEX_ZERO, temp4);
+
+                    gamma_table[4][l + nHL*(k + nHL*(j + nHL*i))] = trace(temp4);
+                    printf("gamma_table[4][%d] (%d %d %d %d): ", l + nHL*(k + nHL*(j + nHL*i)), i, j, k, l);
+                    printf("%lf %lf\n", GSL_REAL(trace(temp4)), GSL_IMAG(trace(temp4)));
+                    gsl_matrix_complex_free(temp4);
+                }
+                gamma_table[3][k + nHL*(j + nHL*i)] = trace(temp3);
+                printf("gamma_table[3][%d] (%d %d %d): ", k + nHL*(j + nHL*i), i, j, k);
+                printf("%lf %lf\n", GSL_REAL(trace(temp3)), GSL_IMAG(trace(temp3)));
+                gsl_matrix_complex_free(temp3);
+            }
+            gamma_table[2][j + nHL*i] = trace(temp2);
+            printf("gamma_table[2][%d] (%d %d): ", j + nHL*i, i, j);
+            printf("%lf %lf\n", GSL_REAL(trace(temp2)), GSL_IMAG(trace(temp2)));
+            gsl_matrix_complex_free(temp2);
+        }
+    }
+
     
     DIRAC = gsl_matrix_complex_calloc(dimD, dimD);
     
@@ -233,6 +277,40 @@ void init_hot(gsl_complex Sfunc(), void init_gamma(), gsl_rng* r)
     for(int i=0; i<nHL; i++)
         gamma[i] = gsl_matrix_complex_calloc(dimG, dimG);
     init_gamma();
+
+    // initialize gamma_table
+    gamma_table = malloc(5*sizeof(gsl_complex*));
+    gamma_table[0] = malloc(1*sizeof(gsl_complex));
+    gamma_table[1] = malloc(1*sizeof(gsl_complex));
+    gamma_table[2] = malloc(nHL*nHL*sizeof(gsl_complex));
+    gamma_table[3] = malloc(nHL*nHL*nHL*sizeof(gsl_complex));
+    gamma_table[4] = malloc(nHL*nHL*nHL*nHL*sizeof(gsl_complex));
+
+    for(int i=0; i<nHL; i++)
+    {
+        for(int j=0; j<nHL; j++)
+        {
+            gsl_matrix_complex* temp2 = gsl_matrix_complex_alloc(dimG, dimG);
+            gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, gamma[i], gamma[j], GSL_COMPLEX_ZERO, temp2);
+            for(int k=0; k<nHL; k++)
+            {
+                gsl_matrix_complex* temp3 = gsl_matrix_complex_alloc(dimG, dimG);
+                gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, temp2, gamma[k], GSL_COMPLEX_ZERO, temp3);
+                for(int l=0; l<nHL; l++)
+                {
+                    gsl_matrix_complex* temp4 = gsl_matrix_complex_alloc(dimG, dimG);
+                    gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, temp3, gamma[l], GSL_COMPLEX_ZERO, temp4);
+
+                    gamma_table[4][l + nHL*(k + nHL*(j + nHL*i))] = trace(temp4);
+                    gsl_matrix_complex_free(temp4);
+                }
+                gamma_table[3][k + nHL*(j + nHL*i)] = trace(temp3);
+                gsl_matrix_complex_free(temp3);
+            }
+            gamma_table[2][j + nHL*i] = trace(temp2);
+            gsl_matrix_complex_free(temp2);
+        }
+    }
     
     DIRAC = gsl_matrix_complex_calloc(dimD, dimD);
     S = GSL_REAL(Sfunc());
@@ -255,6 +333,16 @@ void simulation_free()
     for(int i=0; i<nHL; i++)
         gsl_matrix_complex_free(gamma[i]);
     free(gamma);
+
+    // free gamma table
+    free(gamma_table[0]);
+    free(gamma_table[1]);
+    free(gamma_table[2]);
+    free(gamma_table[3]);
+    free(gamma_table[4]);
+    free(gamma_table);
+
+
 
     gsl_matrix_complex_free(DIRAC);
 }

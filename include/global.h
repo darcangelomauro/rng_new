@@ -32,7 +32,7 @@
 
 // GLOBAL VARIABLES ********************************************************
 
-#define GEOM40
+#define GEOM22
 
 EXTERN int dim;
 #ifndef GAP
@@ -64,6 +64,7 @@ EXTERN int dimG;
 EXTERN int dimD;
 EXTERN gsl_matrix_complex* DIRAC;
 EXTERN gsl_matrix_complex** gamma;
+EXTERN gsl_complex** gamma_table;
 
 #endif
 

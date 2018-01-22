@@ -24,8 +24,8 @@ int main()
     gsl_rng_set(r, time(NULL));
 
     // file
-    FILE* fS = fopen("D4D2t40.txt", "w");
-    FILE* f2 = fopen("D4D2t40_time.txt", "w");
+    FILE* fS = fopen("D4D2t22.txt", "w");
+    FILE* f2 = fopen("D4D2t22_time.txt", "w");
 
     init_data();
     GEOM_CHECK();
@@ -43,6 +43,8 @@ int main()
     double dS2 = S; 
     for(int i=0; i<REP; i++)
     {
+        if(!(i % 20))
+            printf("iteration: %d\n", i);
         // decide what matrix gets updated
         int uM = (int)(nHL*gsl_rng_uniform(r));
         while(uM == nHL)
