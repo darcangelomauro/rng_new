@@ -110,6 +110,42 @@ void generate_HL(gsl_matrix_complex* m, int mode, int n, gsl_rng* r)
     return;
 }
 
+// generates nxn hermitian matrix H (mode 0) or traceless hermitian matrix L (mode 1)
+// with entries between 0 and 1
+void generate_HL_1(gsl_matrix_complex* m, int n, gsl_rng* r)
+{
+    int i = (int)(n*gsl_rng_uniform(r));
+    while(i == n)
+        i = (int)(n*gsl_rng_uniform(r));
+
+    int j = (int)(n*gsl_rng_uniform(r));
+    while(j == n)
+        j = (int)(n*gsl_rng_uniform(r));
+
+    // generate random entry
+
+    if(i==j)
+    {
+        double x;
+        // generate x uniformly between -1 and 1
+        x = -1 + 2*gsl_rng_uniform(r);
+
+        gsl_matrix_complex_set(m, i, j, gsl_complex_rect(x,0));
+    }
+    else
+    {
+        double x, y;
+        // generate x uniformly between -1 and 1
+        x = -1 + 2*gsl_rng_uniform(r);
+        y = -1 + 2*gsl_rng_uniform(r);
+
+        gsl_matrix_complex_set(m, i, j, gsl_complex_rect(x,y));
+        gsl_matrix_complex_set(m, j, i, gsl_complex_rect(x,-y));
+    }
+
+
+    return;
+}
 
 void matrix_power(gsl_matrix_complex* m, int n, gsl_matrix_complex* res)
 {
@@ -276,6 +312,220 @@ gsl_complex trace(gsl_matrix_complex* m)
     }
 
     return gsl_complex_rect(re, im);
+}
+
+double trace2(gsl_matrix_complex* m1, gsl_matrix_complex* m2)
+{
+    int n = m1->size1;
+    int mtda = m1->tda;
+
+    double res = 0.;
+    for(int i=0; i<n; i++)
+    {
+        for(int j=0; j<i; j++)
+        {
+            int idx = 2*(i*mtda + j);
+            double re1 = m1->data[idx];
+            double im1 = m1->data[idx+1];
+            double re2 = m2->data[idx];
+            double im2 = m2->data[idx+1];
+            res += re1*re2 + im1*im2;
+        }
+    }
+
+    res *= 2.;
+
+    for(int i=0; i<n; i++)
+    {
+        int idx = 2*(i*mtda + i);
+        double re1 = m1->data[idx];
+        double re2 = m2->data[idx];
+        res += re1*re2;
+    }
+
+    return res;
+}
+
+double trace2_self(gsl_matrix_complex* m)
+{
+    int n = m->size1;
+    int mtda = m->tda;
+
+    double res = 0.;
+    for(int i=0; i<n; i++)
+    {
+        for(int j=0; j<i; j++)
+        {
+            int idx = 2*(i*mtda + j);
+            double re = m->data[idx];
+            double im = m->data[idx+1];
+            res += re*re + im*im;
+        }
+    }
+
+    res *= 2.;
+
+    for(int i=0; i<n; i++)
+    {
+        int idx = 2*(i*mtda + i);
+        double re = m->data[idx];
+        res += re*re;
+    }
+
+    return res;
+}
+
+gsl_complex trace3(gsl_matrix_complex* m1, gsl_matrix_complex* m2, gsl_matrix_complex* m3)
+{
+    int n = m1->size1;
+    int mtda = m1->tda;
+
+    double res_re = 0.;
+    double res_im = 0.;
+
+    for(int i=0; i<n; i++)
+    {
+        for(int j=0; j<n; j++)
+        {
+            int idx1 = 2*(i*mtda + j);
+            double a1 = m1->data[idx1];
+            double b1 = m1->data[idx1+1];
+            for(int k=0; k<n; k++)
+            {
+                //if(k != i)
+                {
+                    int idx2 = 2*(j*mtda + k);
+                    int idx3 = 2*(k*mtda + i);
+                    double a2 = m2->data[idx2];
+                    double b2 = m2->data[idx2+1];
+                    double a3 = m3->data[idx3];
+                    double b3 = m3->data[idx3+1];
+                    double A = (a1*a2-b1*b2);
+                    double B = (a1*b2+a2*b1);
+
+                    res_re += (A*a3 - B*b3);
+                    res_im += (A*b3 + B*a3);
+                }
+                /*
+                else
+                {
+                    int idx2 = 2*(j*mtda + k);
+                    int idx3 = 2*(i*mtda + i);
+                    double a2 = m2->data[idx2];
+                    double b2 = m2->data[idx2+1];
+                    double a3 = m3->data[idx3];
+                    double A = (a1*a2-b1*b2);
+                    double B = (a1*b2+a2*b1);
+
+                    res_re += A*a3;
+                    res_im += B*a3;
+                }
+                */
+            }
+        }
+    }
+
+    return gsl_complex_rect(res_re, res_im);
+}
+
+gsl_complex trace4(gsl_matrix_complex* m1, gsl_matrix_complex* m2, gsl_matrix_complex* m3, gsl_matrix_complex* m4)
+{
+    int n = m1->size1;
+    int mtda = m1->tda;
+
+    double res_re = 0.;
+    double res_im = 0.;
+
+    for(int i=0; i<n; i++)
+    {
+        for(int k1=0; k1<n; k1++)
+        {
+            int idx1 = 2*(i*mtda + k1);
+            double a1 = m1->data[idx1];
+            double b1 = m1->data[idx1+1];
+            for(int k2=0; k2<n; k2++)
+            {
+                int idx2 = 2*(k1*mtda + k2);
+                double a2 = m2->data[idx2];
+                double b2 = m2->data[idx2+1];
+                double A = (a1*a2-b1*b2);
+                double C = (a1*b2+a2*b1);
+                for(int k3=0; k3<n; k3++)
+                {
+                    int idx3 = 2*(k2*mtda + k3);
+                    int idx4 = 2*(k3*mtda + i);
+
+                    double a3 = m3->data[idx3];
+                    double b3 = m3->data[idx3+1];
+                    double a4 = m4->data[idx4];
+                    double b4 = m4->data[idx4+1];
+                    
+                    double B = (a3*a4-b3*b4);
+                    double D = (a3*b4+a4*b3);
+                    res_re += A*B - C*D;
+                    res_im += B*C + A*D;
+                }
+            }
+        }
+    }
+
+    return gsl_complex_rect(res_re, res_im);
+}
+
+gsl_complex MG3(gsl_matrix_complex* m1, gsl_matrix_complex* m2, gsl_matrix_complex* m3, int i, int j)
+{
+    double res_re = 0.;
+    double res_im = 0.;
+    
+    int n = m1->size1;
+    int mtda = m1->tda;
+
+    for(int k1=0; k1<n; k1++)
+    {
+        int idx1 = 2*(i*mtda + k1);
+        double a1 = m1->data[idx1];
+        double b1 = m1->data[idx1+1];
+        for(int k2=0; k2<n; k2++)
+        {
+            int idx2 = 2*(k1*mtda + k2);
+            int idx3 = 2*(k2*mtda + j);
+            double a2 = m2->data[idx2];
+            double b2 = m2->data[idx2+1];
+            double a3 = m3->data[idx3];
+            double b3 = m3->data[idx3+1];
+            double A = (a1*a2-b1*b2);
+            double B = (a1*b2+a2*b1);
+
+            res_re += (A*a3 - B*b3);
+            res_im += (A*b3 + B*a3);
+        }
+    }
+
+    return gsl_complex_rect(res_re, res_im);
+}
+
+gsl_complex MG2(gsl_matrix_complex* m1, gsl_matrix_complex* m2, int i, int j)
+{
+    double res_re = 0.;
+    double res_im = 0.;
+    
+    int n = m1->size1;
+    int mtda = m1->tda;
+
+    for(int k=0; k<n; k++)
+    {
+        int idx1 = 2*(i*mtda + k);
+        int idx2 = 2*(j*mtda + k);
+        double a1 = m1->data[idx1];
+        double b1 = m1->data[idx1+1];
+        double a2 = m2->data[idx2];
+        double b2 = m2->data[idx2+1];
+
+        res_re += a1*a2 + b1*b2;
+        res_im += a2*b1 - a1*b2;
+    }
+
+    return gsl_complex_rect(res_re, res_im);
 }
 
 // outputs trace of hermitian matrix
@@ -826,17 +1076,29 @@ void make_hermitian(gsl_matrix_complex* a)
 
     for(int i=0; i<n; i++)
     {
-        for(int j=0; j<n; j++)
+        for(int j=0; j<=i; j++)
         {
-            int idx1 = 2*(i*atda + j);
-            int idx2 = 2*(j*atda + i);
-            double z1_r = a->data[idx1];
-            double z1_i = a->data[idx1+1];
-            double z2_r = a->data[idx2];
-            double z2_i = -1.*(a->data[idx2+1]);
+            if(i != j)
+            {
+                int idx1 = 2*(i*atda + j);
+                int idx2 = 2*(j*atda + i);
+                double z1_r = a->data[idx1];
+                double z1_i = a->data[idx1+1];
+                double z2_r = a->data[idx2];
+                double z2_i = -1.*(a->data[idx2+1]);
 
-            a->data[idx1] = (z1_r + z2_r) / 2.;
-            a->data[idx1+1] = (z1_i + z2_i) / 2.;
+                double re = (z1_r + z2_r) / 2.;
+                double im = (z1_i + z2_i) / 2.;
+                a->data[idx1] = re;
+                a->data[idx1+1] = im;
+                a->data[idx2] = re;
+                a->data[idx2+1] = -im;
+            }
+            else
+            {
+                int idx = 2*(i*atda + i);
+                a->data[idx+1] = 0.;
+            }
         }
     }
 }

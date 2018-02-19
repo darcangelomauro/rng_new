@@ -5,5 +5,6 @@
 
 extern void build_dirac();
 extern gsl_complex actionD4D2_bruteforce();
+extern gsl_complex actionD4_bruteforce();
 extern gsl_complex actionD2_bruteforce();
 #endif

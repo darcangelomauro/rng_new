@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <gsl/gsl_rng.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_cblas.h>
 #include <gsl/gsl_complex.h>
 #include "time.h"
 #include "global.h"
@@ -11,8 +13,12 @@
 #include "action.h"
 #include "update.h"
 
-#define REP 500
+#define REP (1000)
 #define ACTION_B P_actionD4D2_b
+#define HERM 1
+#define HERM_STEP 100 
+#define SC 0.02
+#define ITER 10
 
 int main()
 {
@@ -24,13 +30,22 @@ int main()
     gsl_rng_set(r, time(NULL));
 
     // file
-    FILE* fS = fopen("D4D2t22.txt", "w");
-    FILE* f2 = fopen("D4D2t22_time.txt", "w");
+    FILE* fS;
+    FILE* f2;
+    if(HERM)
+    {
+        fS = fopen("D4D2t13H.txt", "w");
+        f2 = fopen("D4D2t13H_time.txt", "w");
+    }
+    else
+    {
+        fS = fopen("D4D2t13.txt", "w");
+        f2 = fopen("D4D2t13_time.txt", "w");
+    }
 
     init_data();
     GEOM_CHECK();
     init_cold(ACTION_B, P_gamma);
-    fprintf(fS, "%.15lf\n", S);
     
     clock_t start1;
     clock_t cumul1 = 0;
@@ -41,40 +56,81 @@ int main()
     // simulation
     double dS1 = S; 
     double dS2 = S; 
-    for(int i=0; i<REP; i++)
+    for(int idx=0; idx<REP; idx++)
     {
-        if(!(i % 20))
-            printf("iteration: %d\n", i);
+        if(!(idx % ITER))
+            printf("iteration: %d\n", idx);
+        if(!(idx % HERM_STEP))
+            hermitization();
+
         // decide what matrix gets updated
         int uM = (int)(nHL*gsl_rng_uniform(r));
         while(uM == nHL)
             uM = (int)(nHL*gsl_rng_uniform(r));
 
-        gsl_matrix_complex* dM = gsl_matrix_complex_alloc(dim, dim);
-        if(uM < nH)
-            generate_HL(dM, 0, dim, r);  
-        else
-            generate_HL(dM, 1, dim, r);  
+        gsl_matrix_complex* dM = gsl_matrix_complex_calloc(dim, dim);
+        //generate_HL_1(dM, dim, r);
+        
+        // decide matrix entry that gets updated
+        int i = (int)(dim*gsl_rng_uniform(r));
+        while(i == dim)
+            i = (int)(dim*gsl_rng_uniform(r));
 
+        int j = (int)(dim*gsl_rng_uniform(r));
+        while(j == dim)
+            j = (int)(dim*gsl_rng_uniform(r));
+
+
+        double x=0;
+        double y=0;
+        // generate random entry
+        if(i==j)
+        {
+            // generate x uniformly between -1 and 1
+            x = -1 + 2*gsl_rng_uniform(r);
+            x*=SC;
+            
+            gsl_matrix_complex_set(dM, i, j, gsl_complex_rect(2.*x, 0.));
+        }
+        else
+        {
+            // generate x uniformly between -1 and 1
+            x = -1 + 2*gsl_rng_uniform(r);
+            y = -1 + 2*gsl_rng_uniform(r);
+            x*=SC;
+            y*=SC;
+
+            gsl_matrix_complex_set(dM, i, j, gsl_complex_rect(x, y));
+            gsl_matrix_complex_set(dM, j, i, gsl_complex_rect(x, -y));
+        }
+        
 
         start1 = clock();
-        dS1 += G*delta2_auto(dM, uM) + delta4(dM, uM);
-        //dS1 += delta2_auto(dM, uM);
+        dS1 += G*delta2(uM, i, j, gsl_complex_rect(x, y)) + delta4(uM, i, j, gsl_complex_rect(x, y));
         cumul1 += clock()-start1;
         
         start2 = clock();
-        dS2 += G*delta2_auto(dM, uM) + delta4(dM, uM);
-        //dS2 += delta2_auto(dM, uM);
+        dS2 += G*delta2(uM, i, j, gsl_complex_rect(x, y)) + delta4_BETA(uM, i, j, gsl_complex_rect(x, y));
         cumul2 += clock()-start2;
         
         gsl_matrix_complex_add(MAT[uM], dM);
-        free(dM);
+        gsl_matrix_complex_free(dM);
+        
+        /*
+        start2 = clock();
+        double rS = G*dirac2() + dirac4();
+        cumul2 += clock()-start2;
+        */
 
-        start3 = clock();
-        gsl_complex cS = ACTION_B();
-        cumul3 += clock()-start3;
+        if(!(idx%1))
+        {
+            gsl_complex cS;
+            start3 = clock();
+            cS = ACTION_B();
+            cumul3 += clock()-start3;
+            fprintf(fS, "%.15lf %.15lf %.15lf\n", dS1, dS2, GSL_REAL(cS));
+        }
     
-        fprintf(fS, "%.15lf %.15lf %.15lf\n", dS1, dS2, GSL_REAL(cS));
     }
 
     fprintf(f2, "nH = %d, nL = %d, REP = %d, n = %d:\n", nH, nL, REP, dim);

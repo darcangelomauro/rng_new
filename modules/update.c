@@ -77,6 +77,7 @@ void init_data()
     dimD = dimG*dim*dim;
 }
 
+/*
 void init_data_analysis()
 {
     // read input data
@@ -118,76 +119,28 @@ void init_data_analysis()
         dimG = 4;
     dimD = dimG*dim*dim;
 }
+*/
 
-//initializes H matrices to unity and L to zero
-void init_minimal(void init_gamma())
-{
-    /*
-    //initialize H matrices to unity
-    H = malloc(nH*sizeof(gsl_matrix_complex*));
-    for(int i=0; i<nH; i++)
-        H[i] = gsl_matrix_complex_alloc(dim, dim);
-
-    //initialize L matrices to zero
-    L = malloc(nL*sizeof(gsl_matrix_complex*));
-    for(int i=0; i<nL; i++)
-        L[i] = gsl_matrix_complex_alloc(dim, dim);
-    
-    // allocate displacement matrix
-    M = gsl_matrix_complex_alloc(dim, dim);
-    
-    // initialize gamma matrices and dirac
-    gammaH = malloc(nH*sizeof(gsl_matrix_complex*));
-    gammaL = malloc(nL*sizeof(gsl_matrix_complex*));
-    for(int i=0; i<nH; i++)
-        gammaH[i] = gsl_matrix_complex_calloc(dimG, dimG);
-    for(int i=0; i<nL; i++)
-        gammaL[i] = gsl_matrix_complex_calloc(dimG, dimG);
-    init_gamma();
-    
-    DIRAC = gsl_matrix_complex_calloc(dimD, dimD);
-    */
-}
-//initializes H matrices to unity and L to zero
-void init_cold(gsl_complex Sfunc(), void init_gamma())
+void init_cold(double Sfunc(), void init_gamma())
 {
     //initialize H matrices to unity
     MAT = malloc(nHL*sizeof(gsl_matrix_complex*));
     e = malloc(nHL*sizeof(int));
-    tr = malloc(nH*sizeof(double));
-    tr2 = malloc(nH*sizeof(double));
     for(int i=0; i<nHL; i++)
     {
         MAT[i] = gsl_matrix_complex_calloc(dim, dim);
+        gsl_matrix_complex_set_identity(MAT[i]);
         if(i < nH)
-        {
-            gsl_matrix_complex_set_identity(MAT[i]);
-            tr[i] = dim;
-            tr2[i] = dim;
             e[i] = 1;
-        }
         else
             e[i] = -1;
     }
 
-    // allocate displacement matrix
-    M = gsl_matrix_complex_calloc(dim, dim);
-    
-
-    // initialize action
-    /*
-    double var[14];
-    int control[14] = {1,0,1,1,1,1,1,1,1,1,1,1,1,1};
-    Sfunc(var, control);
-    */
-
-
-    // initialize gamma matrices and dirac
+    // initialize gamma matrices
     gamma = malloc(nHL*sizeof(gsl_matrix_complex*));
     for(int i=0; i<nHL; i++)
         gamma[i] = gsl_matrix_complex_calloc(dimG, dimG);
     init_gamma();
-
 
     // initialize gamma_table
     gamma_table = malloc(5*sizeof(gsl_complex*));
@@ -213,66 +166,41 @@ void init_cold(gsl_complex Sfunc(), void init_gamma())
                     gsl_blas_zgemm(CblasNoTrans, CblasNoTrans, GSL_COMPLEX_ONE, temp3, gamma[l], GSL_COMPLEX_ZERO, temp4);
 
                     gamma_table[4][l + nHL*(k + nHL*(j + nHL*i))] = trace(temp4);
-                    printf("gamma_table[4][%d] (%d %d %d %d): ", l + nHL*(k + nHL*(j + nHL*i)), i, j, k, l);
-                    printf("%lf %lf\n", GSL_REAL(trace(temp4)), GSL_IMAG(trace(temp4)));
                     gsl_matrix_complex_free(temp4);
                 }
                 gamma_table[3][k + nHL*(j + nHL*i)] = trace(temp3);
-                printf("gamma_table[3][%d] (%d %d %d): ", k + nHL*(j + nHL*i), i, j, k);
-                printf("%lf %lf\n", GSL_REAL(trace(temp3)), GSL_IMAG(trace(temp3)));
                 gsl_matrix_complex_free(temp3);
             }
             gamma_table[2][j + nHL*i] = trace(temp2);
-            printf("gamma_table[2][%d] (%d %d): ", j + nHL*i, i, j);
-            printf("%lf %lf\n", GSL_REAL(trace(temp2)), GSL_IMAG(trace(temp2)));
             gsl_matrix_complex_free(temp2);
         }
     }
-
     
+    // alloc dirac
     DIRAC = gsl_matrix_complex_calloc(dimD, dimD);
     
-    S = GSL_REAL(Sfunc());
+    // initialize action
+    S = Sfunc();
 }
 
+
 //initializes H and L with random matrices
-void init_hot(gsl_complex Sfunc(), void init_gamma(), gsl_rng* r)
+void init_hot(double Sfunc(), void init_gamma(), gsl_rng* r)
 {
     //initialize H matrices randomly
     MAT = malloc(nHL*sizeof(gsl_matrix_complex*));
-    tr = malloc(nH*sizeof(double));
-    tr2 = malloc(nH*sizeof(double));
+    e = malloc(nHL*sizeof(int));
     for(int i=0; i<nHL; i++)
     {
         MAT[i] = gsl_matrix_complex_calloc(dim, dim);
-        int mode = (i >= nH);
-        generate_HL(MAT[i], mode, dim, r);
-        if(!mode)
+        generate_HL(MAT[i], 0, dim, r);
+        if(i < nH)
             e[i] = 1;
         else
             e[i] = -1;
     }
     
-    // allocate displacement matrix
-    M = gsl_matrix_complex_calloc(dim, dim);
-    
-
-    // initialize action and traces
-    /*
-    double var[14];
-    int control[14] = {1,0,1,1,1,1,1,1,1,1,1,1,1,1};
-    Sfunc(var, control);
-
-    S = var[0];
-    for(int i=0; i<nH; i++)
-    {
-        tr[i] = var[nH+2];
-        tr2[i] = var[nH+3];
-    }
-    */
-
-    
-    // initialize gamma matrices and dirac
+    // initialize gamma matrices
     gamma = malloc(nHL*sizeof(gsl_matrix_complex*));
     for(int i=0; i<nHL; i++)
         gamma[i] = gsl_matrix_complex_calloc(dimG, dimG);
@@ -312,8 +240,11 @@ void init_hot(gsl_complex Sfunc(), void init_gamma(), gsl_rng* r)
         }
     }
     
+    // alloc dirac
     DIRAC = gsl_matrix_complex_calloc(dimD, dimD);
-    S = GSL_REAL(Sfunc());
+
+    // initialize action
+    S = Sfunc();
 }
 
 
@@ -323,11 +254,7 @@ void simulation_free()
     for(int i=0; i<nHL; i++)
         gsl_matrix_complex_free(MAT[i]);
     free(MAT);
-    free(tr);
-    free(tr2);
-
-    // free displacement matrix
-    gsl_matrix_complex_free(M);
+    free(e);
     
     // free gamma matrices and dirac
     for(int i=0; i<nHL; i++)
@@ -342,87 +269,114 @@ void simulation_free()
     free(gamma_table[4]);
     free(gamma_table);
 
-
-
     gsl_matrix_complex_free(DIRAC);
 }
 
 
 
-// returns 1 if ith sweep corresponds to
-// a measurement (step is the distance between
-// measurements)
-int measurement(int i, int step)
+// returns 1 if i % step == 0
+int doit(int i, int step)
 {
     return !(i%step);
 }
 
-/*
-int move(void Sfunc(double*, int*), int mode, gsl_rng* r)
+
+int move(double deltaS(int, int, int, gsl_complex), gsl_rng* r)
 {
     // check is what will be returned
     int accepted = 0;
 
     // MONTECARLO MOVE PROPOSAL
-    double S1[14];
-    int control[14] = {1,0,1,1,1,1,1,1,1,1,1,1,1,1};
-    if(mode) control[1] = 1;
-
     
     // decide what matrix gets updated
     int uM = (int)(nHL*gsl_rng_uniform(r));
     while(uM == nHL)
         uM = (int)(nHL*gsl_rng_uniform(r));
+    
+    // decide matrix entry that gets updated
+    int i = (int)(dim*gsl_rng_uniform(r));
+    while(i == dim)
+        i = (int)(dim*gsl_rng_uniform(r));
+
+    int j = (int)(dim*gsl_rng_uniform(r));
+    while(j == dim)
+        j = (int)(dim*gsl_rng_uniform(r));
 
     
-    // buffer is needed to temporarily update the H or L matrices
-    // but it never allocates new memory, so no need to free at the end
-    gsl_matrix_complex* buffer;
-    
-
-    // generate displacement dM
-    int mode = (uM >= nH);
-    generate_HL(M, mode, dim, r);    //M is now the proposed displacement from MAT[uM]
-
-    // compute displaced matrix
-    gsl_matrix_complex_add(M, MAT[uM]);             //now M = MAT[uM] + displacement
-    buffer = MAT[uM];
-    MAT[uM] = M;
-    Sfunc(S1, control);
-    MAT[uM] = buffer;
-
-    // now we evaluate the move
-    if(S1[0] < S)
+    // generate random entry
+    double x=0;
+    double y=0;
+    gsl_complex z;
+    if(i==j)
     {
-        gsl_matrix_complex_memcpy(MAT[uM], M);
-        if(!mode)
+        // generate x uniformly between -1 and 1
+        x = -1 + 2*gsl_rng_uniform(r);
+
+        // metropolis scale
+        x *= 2.*SCALE;
+
+        z = gsl_complex_rect(x, 0.);
+    }
+    else
+    {
+        // generate x and y uniformly between -1 and 1
+        x = -1 + 2*gsl_rng_uniform(r);
+        y = -1 + 2*gsl_rng_uniform(r);
+
+        // metropolis scale
+        x *= SCALE;
+        y *= SCALE;
+
+        z = gsl_complex_rect(x, y);
+    }
+        
+    
+    // compute action difference
+    double dS = deltaS(uM, i, j, z);
+
+
+    // now evaluate the move
+    if(dS < 0)
+    {
+        if(i != j)
         {
-            tr[uM] = S1[2*uM+2];
-            tr2[uM] = S1[2*uM+3];
+            gsl_complex w = MG(MAT[uM], i, j);
+            gsl_matrix_complex_set(MAT[uM], i, j, CA(w, z));
+            gsl_matrix_complex_set(MAT[uM], j, i, CA(CC(w), CC(z)));
+        }
+        else
+        {
+            double w = GSL_REAL(MG(MAT[uM], i, i));
+            gsl_matrix_complex_set(MAT[uM], i, i, gsl_complex_rect(x+w, 0.));
         }
 
         // update action
-        S = S1[0];
+        S += dS;
 
         // move accepted
         accepted = 1;
     }
     else
     {
-        double e = exp(S-S1[0]);
+        double e = exp(-dS);
         double p = gsl_rng_uniform(r);
 
         if(e>p)
         {
-            gsl_matrix_complex_memcpy(MAT[uM], M);
-            if(!mode)
+            if(i != j)
             {
-                tr[uM] = S1[2*uM+2];
-                tr2[uM] = S1[2*uM+3];
+                gsl_complex w = MG(MAT[uM], i, j);
+                gsl_matrix_complex_set(MAT[uM], i, j, CA(w, z));
+                gsl_matrix_complex_set(MAT[uM], j, i, CA(CC(w), CC(z)));
+            }
+            else
+            {
+                double w = GSL_REAL(MG(MAT[uM], i, i));
+                gsl_matrix_complex_set(MAT[uM], i, i, gsl_complex_rect(x+w, 0.));
             }
 
             // update action
-            S = S1[0];
+            S += dS;
 
             // move accepted
             accepted = 1;
@@ -430,25 +384,24 @@ int move(void Sfunc(double*, int*), int mode, gsl_rng* r)
     }
 
     return accepted;
-
 }
 
-// a sweep is a collection of nHL proposed moves
+// a sweep is a collection of dim*dim*nHL proposed moves
 // it returns the acceptance rate of that sweep
-double sweep(void Sfunc(double*, int*), int mode, gsl_rng* r)
+double sweep(double deltaS(int, int, int, gsl_complex), gsl_rng* r)
 {
     double sum = 0.;
-    for(int i=0; i<nHL; i++)
-        sum += move(Sfunc, mode, r);
+    for(int i=0; i<dim*dim*nHL; i++)
+        sum += move(Sfunc, r);
 
 
-    return sum/(double)nHL;
+    return sum/(double)(dim*dim*nHL);
 }
 
 
 // a routine to automatically set the SCALE factor to give acceptance rate
 // between minTarget and maxTarget (very rudimental and ugly, seems to work reasonably well)
-void SCALE_autotune(double minTarget, double maxTarget, void Sfunc(double*, int*), gsl_rng* r)
+void SCALE_autotune(double minTarget, double maxTarget, void deltaS(int, int, int, gsl_complex), gsl_rng* r)
 {
     int n1 = 50;
     int n2 = 50;
@@ -458,7 +411,7 @@ void SCALE_autotune(double minTarget, double maxTarget, void Sfunc(double*, int*
 
     // initialize ar
     for(int i=0; i<n1; i++)
-        ar += sweep(Sfunc, 0, r);
+        ar += sweep(deltaS, r);
     ar /= (double)n1;
 
     int count = 0;
@@ -495,7 +448,7 @@ void SCALE_autotune(double minTarget, double maxTarget, void Sfunc(double*, int*
                 }
                 ar = 0.;
                 for(int k=0; k<n2; k++)
-                    ar += sweep(Sfunc, 0, r);
+                    ar += sweep(deltaS, r);
                 ar /= (double)n2;
             }
             delta /= 10.;
@@ -505,18 +458,19 @@ void SCALE_autotune(double minTarget, double maxTarget, void Sfunc(double*, int*
 
 
 // complete simulation routine
+// generates a 5 digit code that distinguishes simulations
 // first, it prints on file the simulation data
-// the thermalization part outputs two files "thermalizationX.txt" (where X is 1 or 2) with the action value
-// the simulation part outputs a file "simulation.txt" with the action and the H and L matrices
-// returns acceptance rate
-char* simulation(void Sfunc(double*, int*), int mode, int renorm, void init_gamma(), gsl_rng* r)
+// the thermalization part outputs two files "thermX.txt" (where X is 1 or 2) with the action value
+// the simulation part outputs two files "simS.txt" "simHL.txt" with the action and the H and L matrices
+// returns simulation code
+char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), int renorm, void init_gamma(), gsl_rng* r)
 {
     init_data();
     
     GEOM_CHECK();
     
     init_cold(Sfunc, init_gamma);
-    SCALE_autotune(0.21, 0.3, Sfunc, r);
+    SCALE_autotune(0.21, 0.3, deltaS, r);
     printf("Auto tuned SCALE: %lf\n", SCALE);
 
     // generate unique filename
@@ -559,7 +513,11 @@ char* simulation(void Sfunc(double*, int*), int mode, int renorm, void init_gamm
     print_time(fdata, "start therm1:");
     for(int i=0; i<Ntherm; i++)
     {
-        sweep(Sfunc, mode, r);
+        sweep(deltaS, r);
+        
+        if(doit(i, ADJ))
+            adjust(Sfunc);
+        
         print_thermalization_plus(ftherm1);
     }
     print_time(fdata, "end therm1:");
@@ -571,8 +529,13 @@ char* simulation(void Sfunc(double*, int*), int mode, int renorm, void init_gamm
     print_time(fdata, "start therm2:");
     for(int i=0; i<Ntherm; i++)
     {
-        sweep(Sfunc, mode, r);
+        sweep(deltaS, r);
+        
+        if(doit(i, ADJ))
+            adjust(Sfunc);
+        
         print_thermalization_plus(ftherm2);
+        
     }
     print_time(fdata, "end therm2:");
     fclose(ftherm2);
@@ -583,8 +546,12 @@ char* simulation(void Sfunc(double*, int*), int mode, int renorm, void init_gamm
     print_time(fdata, "start simulation:");
     for(int i=0; i<Nsw; i++)
     {
-        ar += sweep(Sfunc, mode, r);
-        if(measurement(i, GAP))
+        ar += sweep(deltaS, r);
+        
+        if(doit(i, ADJ))
+            adjust(Sfunc);
+
+        if(doit(i, GAP))
         {
             print_simulation(fsimS, fsimHL);
             if(renorm)
@@ -616,7 +583,7 @@ char* simulation(void Sfunc(double*, int*), int mode, int renorm, void init_gamm
 // file "XXXXX_varG_args.txt": collects list of codes needed to run multicode_analysis_main
 // file "XXXXX_varG_G_args.txt": shows correspondence between G and code
 // 
-void multicode_wrapper(void Sfunc(double*, int*), void init_gamma(), int renorm, double INCR_G, int REP_G, int INCR_dim, int REP_dim, gsl_rng* r)
+void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex), void init_gamma(), int renorm, double INCR_G, int REP_G, int INCR_dim, int REP_dim, gsl_rng* r)
 {
     // cycle over matrix dimension
     for(int j=0; j<REP_dim; j++)
@@ -629,7 +596,7 @@ void multicode_wrapper(void Sfunc(double*, int*), void init_gamma(), int renorm,
             exit(EXIT_FAILURE);
         }
         int narg;
-        int dim_, nH_, nL_, Ntherm_, Nsw_;
+        int dim_, nH_, nL_, Ntherm_, Nsw_, ADJ_;
         double SCALE_, G_;
         // initialize matrix dimension
         narg = fscanf(finit, "%d", &dim_);
@@ -645,6 +612,7 @@ void multicode_wrapper(void Sfunc(double*, int*), void init_gamma(), int renorm,
         narg += fscanf(finit, "%d", &Ntherm_);
         // initialize number of simulation sweeps
         narg += fscanf(finit, "%d", &Nsw_);
+        
         if(narg < 7)
         {
             printf("Error: not enough data in init.txt\n");
@@ -685,7 +653,7 @@ void multicode_wrapper(void Sfunc(double*, int*), void init_gamma(), int renorm,
         print_time(fvarG_data, "start simulation:");
         for(int i=0; i<REP_G; i++)
         {
-            char* code = simulation(Sfunc, 0, renorm, init_gamma, r);
+            char* code = simulation(Sfunc, deltaS, renorm, init_gamma, r);
             fprintf(fvarG_args, "%s ", code);
             fprintf(fvarG_G_args, "%lf %s\n", G, code);
             printf("dim: %d,    G: %lf\n", dim, G);
@@ -722,13 +690,19 @@ void multicode_wrapper(void Sfunc(double*, int*), void init_gamma(), int renorm,
         fclose(finit2);
     }
 }
-*/
 
 
-void hermitization()
+void adjust(double Sfunc())
 {
     for(int i=0; i<nHL; i++)
+    {
         make_hermitian(MAT[i]);
+
+        if(i >= nH)
+            traceless(MAT[i], dim);
+    }
+
+    S = Sfunc();
 }
 
 

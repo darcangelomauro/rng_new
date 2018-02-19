@@ -19,7 +19,7 @@ all: rmxeq mkdep mkxeq
 
 # main programs and required modules 
 
-MAIN = renormalize_test power_test multiprod_test
+MAIN = renormalize_test power_test multiprod_test trace2_test trace2_self_test trace4_test trace3_test MG2_test MG3_test
 
 UTILS = matop 
 
@@ -48,8 +48,8 @@ LIBPATH = /home/pmxmd10/gsl/lib
 
 # scheduling and optimization options (such as -DSSE -DSSE2 -DP4)
  
-CFLAGS = -std=c99 -pedantic -fstrict-aliasing -Wall -Wno-long-long -O \
-         -Werror -fPIC -DHAVE_INLINE 
+CFLAGS = -std=c99 -pedantic -fstrict-aliasing -Wall -Wno-long-long \
+         -Werror -fPIC -DHAVE_INLINE -pg 
  
 
 ############################## do not change ###################################

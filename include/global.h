@@ -32,11 +32,14 @@
 
 // GLOBAL VARIABLES ********************************************************
 
-#define GEOM22
+#define GEOM13
 
 EXTERN int dim;
 #ifndef GAP
     #define GAP (1000)
+#endif
+#ifndef ADJ
+    #define ADJ (1000)
 #endif
 EXTERN int nH;
 EXTERN int nL;

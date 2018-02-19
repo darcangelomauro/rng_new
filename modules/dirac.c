@@ -51,6 +51,23 @@ gsl_complex actionD2_bruteforce()
     return trD2;
 }
 
+gsl_complex actionD4_bruteforce()
+{
+    build_dirac();
+    
+    gsl_matrix_complex* D2 = gsl_matrix_complex_calloc(dimD, dimD);
+    gsl_matrix_complex* D4 = gsl_matrix_complex_calloc(dimD, dimD);
+    gsl_blas_zhemm(CblasLeft, CblasUpper, GSL_COMPLEX_ONE, DIRAC, DIRAC, GSL_COMPLEX_ZERO, D2);
+    gsl_blas_zhemm(CblasLeft, CblasUpper, GSL_COMPLEX_ONE, D2, D2, GSL_COMPLEX_ZERO, D4);
+
+    gsl_complex trD4 = trace(D4);
+
+    gsl_matrix_complex_free(D2);
+    gsl_matrix_complex_free(D4);
+
+    return trD4;
+}
+
 gsl_complex actionD4D2_bruteforce()
 {
     build_dirac();

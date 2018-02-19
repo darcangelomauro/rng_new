@@ -7,7 +7,9 @@
 #include <gsl/gsl_rng.h>
 
 
-extern double delta2(gsl_matrix_complex* dM, int uM);
-extern double delta2_auto(gsl_matrix_complex* dM, int uM);
-extern double delta4(gsl_matrix_complex* dM, int uM);
+extern double delta2(int uM, int I, int J, gsl_complex z);
+extern double delta4(int uM, int I, int J, gsl_complex z);
+extern double delta4_BETA(int uM, int I, int J, gsl_complex z);
+extern double dirac2();
+extern double dirac4();
 #endif
