@@ -81,6 +81,37 @@ char* alloc_folder_filename(char* suffix, char* folder)
     return name;
 }
 
+char* alloc_rank_filename(int rank, char* prefix)
+{
+    // transform rank from int to string
+    int n = strlen(prefix);
+    int m = snprintf(NULL, 0, "%d", rank);
+    char* rank_str = malloc((m+1)*sizeof(char));
+    int r = sprintf(rank_str, "%d", rank);
+    if(r != m)
+    {
+        printf("Error: rank int to str conversion not working\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // compose name
+    char* name = malloc((n+m+5)*sizeof(char));
+
+    for(int i=0; i<n; i++)
+        name[i] = prefix[i];
+    for(int i=0; i<m; i++)
+        name[i+n] = rank_str[i];
+    name[n+m] = '.';
+    name[n+m+1] = 't';
+    name[n+m+2] = 'x';
+    name[n+m+3] = 't';
+    name[n+m+4] = '\0';
+
+    free(rank_str);
+
+    return name;
+}
+
 
 
 // computes average of columns and writes it in file output

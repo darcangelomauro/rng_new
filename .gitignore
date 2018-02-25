@@ -34,3 +34,12 @@ main/*
 !main/Makefile
 
 
+# *** mpi_main ***
+
+# ignore everything
+mpi_main/*
+
+# unignore .c, .md and Makefile
+!mpi_main/*.c
+!mpi_main/*.md
+!mpi_main/Makefile

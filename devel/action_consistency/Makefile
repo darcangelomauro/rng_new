@@ -21,7 +21,7 @@ all: rmxeq mkdep mkxeq
 
 MAIN = action_consistency
 
-UTILS = update matop action geom01 geom10 geom20 geom02 geom11 geom03 geom13 geom31 geom22 geom40 geom04 dirac 
+UTILS = update matop action geom01 geom10 geom20 geom02 geom11 geom03 geom13 geom31 geom22 geom40 geom04 dirac fileop data 
 
 
 MODULES = $(UTILS)

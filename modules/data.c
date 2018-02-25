@@ -55,8 +55,11 @@ void print_thermalization(FILE* fobsS)
 void print_thermalization_plus(FILE* fobsStr)
 {
     fprintf(fobsStr, "%.15lf ", S);
+
+    /*
     for(int i=0; i<nH; i++)
         fprintf(fobsStr, "%.15lf %.15lf ", tr[i], tr2[i]);
+    */
     fprintf(fobsStr, "\n");
 
 }
@@ -65,8 +68,10 @@ void print_simulation(FILE* fobsS, FILE* fobsHL)
 {
     // print action
     fprintf(fobsS, "%.15lf ", S);
+    /*
     for(int i=0; i<nH; i++)
         fprintf(fobsS, "%.15lf %.15lf ", tr[i], tr2[i]);
+    */
     fprintf(fobsS, "\n");
 
     // print H matrices
@@ -88,6 +93,7 @@ void print_simulation(FILE* fobsS, FILE* fobsHL)
 void print_renormalized(FILE* fobsS, FILE* fobsHL, gsl_matrix_complex** MAT_r, int dim_r)
 {
     // print H matrices
+    /*
     for(int l=0; l<nHL; l++)
     {
         for(int i=0; i<dim_r; i++)
@@ -113,5 +119,6 @@ void print_renormalized(FILE* fobsS, FILE* fobsHL, gsl_matrix_complex** MAT_r, i
         gsl_matrix_complex_free(H2_r);
     }
     fprintf(fobsS, "\n");
+    */
 }
     

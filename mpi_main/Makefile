@@ -19,7 +19,7 @@ all: rmxeq mkdep mkxeq
 
 # main programs and required modules 
 
-MAIN = multicode_simulation_main mpi_multicode_simul_main
+MAIN = mpi_multicode_simul_main
 
 UTILS = statistics matop update fileop geom01 geom10 geom20 geom02 geom11 geom03 geom13 geom31 geom22 geom40 geom04 data dirac action 
 
@@ -56,7 +56,7 @@ CFLAGS = -std=c99 -pedantic -fstrict-aliasing -Wall -Wno-long-long \
 
 SHELL=/bin/bash
 
-CC=gcc
+CC=mpicc
 
 PGMS= $(MAIN) $(MODULES)
 

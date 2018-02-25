@@ -37,21 +37,21 @@ void build_dirac()
     gsl_matrix_complex_free(b);
 }
 
-gsl_complex actionD2_bruteforce()
+double actionD2_bruteforce()
 {
     build_dirac();
     
     gsl_matrix_complex* D2 = gsl_matrix_complex_calloc(dimD, dimD);
     gsl_blas_zhemm(CblasLeft, CblasUpper, GSL_COMPLEX_ONE, DIRAC, DIRAC, GSL_COMPLEX_ZERO, D2);
 
-    gsl_complex trD2 = trace(D2);
+    double trD2 = trace_herm(D2);
 
     gsl_matrix_complex_free(D2);
 
     return trD2;
 }
 
-gsl_complex actionD4_bruteforce()
+double actionD4_bruteforce()
 {
     build_dirac();
     
@@ -60,7 +60,7 @@ gsl_complex actionD4_bruteforce()
     gsl_blas_zhemm(CblasLeft, CblasUpper, GSL_COMPLEX_ONE, DIRAC, DIRAC, GSL_COMPLEX_ZERO, D2);
     gsl_blas_zhemm(CblasLeft, CblasUpper, GSL_COMPLEX_ONE, D2, D2, GSL_COMPLEX_ZERO, D4);
 
-    gsl_complex trD4 = trace(D4);
+    double trD4 = trace_herm(D4);
 
     gsl_matrix_complex_free(D2);
     gsl_matrix_complex_free(D4);
@@ -68,7 +68,7 @@ gsl_complex actionD4_bruteforce()
     return trD4;
 }
 
-gsl_complex actionD4D2_bruteforce()
+double actionD4D2_bruteforce()
 {
     build_dirac();
     
@@ -77,13 +77,13 @@ gsl_complex actionD4D2_bruteforce()
     gsl_blas_zhemm(CblasLeft, CblasUpper, GSL_COMPLEX_ONE, DIRAC, DIRAC, GSL_COMPLEX_ZERO, D2);
     gsl_blas_zhemm(CblasLeft, CblasUpper, GSL_COMPLEX_ONE, D2, D2, GSL_COMPLEX_ZERO, D4);
 
-    gsl_complex trD2 = trace(D2);
-    gsl_complex trD4 = trace(D4);
+    double trD2 = trace_herm(D2);
+    double trD4 = trace_herm(D4);
 
     gsl_matrix_complex_free(D2);
     gsl_matrix_complex_free(D4);
 
-    return gsl_complex_add(gsl_complex_mul_real(trD2, G), trD4);
+    return trD2*G + trD4;
 }
 
 

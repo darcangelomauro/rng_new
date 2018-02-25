@@ -7,18 +7,19 @@
 #include <gsl/gsl_cblas.h>
 #include <gsl/gsl_complex.h>
 #include "time.h"
+#include "math.h"
 #include "global.h"
 #include "macros.h"
 #include "matop.h"
 #include "action.h"
 #include "update.h"
 
-#define REP (1000)
+#define REP (10000)
 #define ACTION_B P_actionD4D2_b
 #define HERM 1
 #define HERM_STEP 100 
-#define SC 0.02
-#define ITER 10
+#define SC 1
+#define ITER 100
 
 int main()
 {
@@ -32,15 +33,18 @@ int main()
     // file
     FILE* fS;
     FILE* f2;
+    FILE* f3;
     if(HERM)
     {
         fS = fopen("D4D2t13H.txt", "w");
         f2 = fopen("D4D2t13H_time.txt", "w");
+        f3 = fopen("D4D2t13H_err.txt", "w");
     }
     else
     {
         fS = fopen("D4D2t13.txt", "w");
         f2 = fopen("D4D2t13_time.txt", "w");
+        f2 = fopen("D4D2t13_err.txt", "w");
     }
 
     init_data();
@@ -55,13 +59,13 @@ int main()
     clock_t cumul3 = 0;
     // simulation
     double dS1 = S; 
-    double dS2 = S; 
+    //double dS2 = S; 
     for(int idx=0; idx<REP; idx++)
     {
         if(!(idx % ITER))
             printf("iteration: %d\n", idx);
         if(!(idx % HERM_STEP))
-            hermitization();
+            adjust();
 
         // decide what matrix gets updated
         int uM = (int)(nHL*gsl_rng_uniform(r));
@@ -86,7 +90,7 @@ int main()
         // generate random entry
         if(i==j)
         {
-            // generate x uniformly between -1 and 1
+            // generate x uniformly between -SC and SC
             x = -1 + 2*gsl_rng_uniform(r);
             x*=SC;
             
@@ -94,7 +98,7 @@ int main()
         }
         else
         {
-            // generate x uniformly between -1 and 1
+            // generate x uniformly between -SC and SC
             x = -1 + 2*gsl_rng_uniform(r);
             y = -1 + 2*gsl_rng_uniform(r);
             x*=SC;
@@ -109,26 +113,21 @@ int main()
         dS1 += G*delta2(uM, i, j, gsl_complex_rect(x, y)) + delta4(uM, i, j, gsl_complex_rect(x, y));
         cumul1 += clock()-start1;
         
-        start2 = clock();
-        dS2 += G*delta2(uM, i, j, gsl_complex_rect(x, y)) + delta4_BETA(uM, i, j, gsl_complex_rect(x, y));
-        cumul2 += clock()-start2;
-        
         gsl_matrix_complex_add(MAT[uM], dM);
         gsl_matrix_complex_free(dM);
         
-        /*
         start2 = clock();
         double rS = G*dirac2() + dirac4();
         cumul2 += clock()-start2;
-        */
-
+        
         if(!(idx%1))
         {
-            gsl_complex cS;
             start3 = clock();
-            cS = ACTION_B();
+            double cS = ACTION_B();
             cumul3 += clock()-start3;
-            fprintf(fS, "%.15lf %.15lf %.15lf\n", dS1, dS2, GSL_REAL(cS));
+
+            fprintf(fS, "%.15lf %.15lf %.15lf\n", dS1, rS, cS);
+            fprintf(f3, "%.15lf %.15lf\n", fabs(dS1-cS)/cS, fabs(rS-cS)/cS);
         }
     
     }
@@ -142,4 +141,5 @@ int main()
     gsl_rng_free(r);
     fclose(fS);
     fclose(f2);
+    fclose(f3);
 }

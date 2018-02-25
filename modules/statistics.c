@@ -11,7 +11,7 @@
 #include "fileop.h"
 #include "matop.h"
 
-int binomial_coeff(n, k)
+int binomial_coeff(int n, int k)
 {
   if(k > n)
   {

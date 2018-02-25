@@ -6,6 +6,8 @@
 #include "time.h"
 #include "global.h"
 #include "macros.h"
+#include "action.h"
+#include "update.h"
 
 int main()
 {
@@ -16,32 +18,32 @@ int main()
     r = gsl_rng_alloc(T);
     gsl_rng_set(r, time(NULL));
 
+    // Read G values from file
+    FILE* fG = fopen("gval.txt", "r");
+    if(fG == NULL)
+    {
+        printf("Error: gval.txt not found\n");
+        exit(EXIT_FAILURE);
+    }
+    
     double incr_G;
-    int incr_dim, rep_G, rep_dim;
-    int renorm;
+    int rep_G;
     int r1 = 0;
 
-    printf("The program allows to simulate automatically a range of values of G and dim.\n");
-    printf("The outemost loop increases dim, the innermost increases G.\n");
-    printf("Input increase in G at each step (can be negative, resulting in a decrease)\n");
-    r1 += scanf("%lf", &incr_G);
-    printf("Specify how many values of G must be simulated\n");
-    r1 += scanf("%d", &rep_G);
-    printf("Specify increase in dim at each step (can be negative, resulting in a decrease, but must be integer)\n");
-    r1 += scanf("%d", &incr_dim);
-    printf("Specify how many values of dim must be simulated\n");
-    r1 += scanf("%d", &rep_dim);
-    printf("Specify if renormalization on (1) or off (0) \n");
-    r1 += scanf("%d", &renorm);
+    r1 += fscanf(fG, "%lf", &incr_G);
+    r1 += fscanf(fG, "%d", &rep_G);
     
-    if(r1 != 5)
+    if(r1 != 2)
     {
         printf("Error: failed to read parameters\n");
         exit(EXIT_FAILURE);
     }
+
+    fclose(fG);
+    
     
     // simulation
-    multicode_wrapper(P_actionD4D2, P_gamma, renorm, incr_G, rep_G, incr_dim, rep_dim, r);
+    multicode_wrapper(dirac42, delta42, incr_G, rep_G, r);
     
     // free random number generator
     gsl_rng_free(r);

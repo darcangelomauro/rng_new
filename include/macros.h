@@ -29,8 +29,6 @@
 #define C_actionD2_b actionD2_bruteforce()
 #define C_actionD4_b actionD4_bruteforce()
 #define C_actionD4D2_b actionD4D2_bruteforce()
-//#define P_dirac_b build_dirac_bruteforce
-//#define C_dirac_b build_dirac_bruteforce()
 
 
 #ifdef GEOM20
