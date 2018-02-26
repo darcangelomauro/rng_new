@@ -2,14 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include "statistics.h"
-#include <gsl/gsl_complex.h>
-#include <gsl/gsl_complex_math.h>
-#include <gsl/gsl_matrix_complex_double.h>
-#include <gsl/gsl_blas.h>
-#include "fileop.h"
-#include "matop.h"
 
 int binomial_coeff(int n, int k)
 {
@@ -68,6 +61,8 @@ double* binned_vector(double* v, int n, int dimbin)
 
     for(int i=0; i<size; i++)
         u[i] /= (double)count[i];
+
+    free(count);
 
     return u;
 }

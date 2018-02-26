@@ -2,11 +2,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_blas.h>
-#include "update.h"
 #include "matop.h"
-#include "math.h"
 #include "global.h"
 
 

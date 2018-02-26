@@ -4,14 +4,16 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include <gsl/gsl_rng.h>
-#include "time.h"
+#include <time.h>
 #include "global.h"
-#include "macros.h"
-#include "action.h"
 #include "update.h"
+#include "codeop.h"
+#include "dirac.h"
+#include "action.h"
 
 int main()
 {
+    // ****************************************** MPI STUFF ******************************
     // Initialize the MPI environment
     MPI_Init(NULL, NULL);
     
@@ -24,7 +26,7 @@ int main()
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     
 
-
+    // ****************************************** RNG STUFF ******************************
     // Initialize random number generator
     const gsl_rng_type* T;
     gsl_rng* r;
@@ -34,7 +36,7 @@ int main()
 
 
 
-    // Read G values from file
+    // ****************************************** READ GVAL FILE ******************************
     char* name_gval = alloc_rank_filename(rank, "gval");  
     FILE* fG = fopen(name_gval, "r");
     if(fG == NULL)
@@ -61,11 +63,18 @@ int main()
     
 
 
-    // Simulation
+
+
+    // ****************************************** SIMULATION ******************************
     multicode_wrapper(dirac42, delta42, incr_G, rep_G, rank, r);
     
 
 
+
+
+
+
+    // ****************************************** FREE MEMORY ******************************
     // Free random number generator
     gsl_rng_free(r);
     

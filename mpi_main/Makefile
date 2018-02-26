@@ -21,10 +21,11 @@ all: rmxeq mkdep mkxeq
 
 MAIN = mpi_multicode_simul_main
 
-UTILS = statistics matop update fileop geom01 geom10 geom20 geom02 geom11 geom03 geom13 geom31 geom22 geom40 geom04 data dirac action 
+UTILS = statistics matop update codeop printop dirac action 
 
+GEOM = geom01 geom10 geom20 geom11 geom02 geom03 geom40 geom31 geom22 geom13 geom04
 
-MODULES = $(UTILS)
+MODULES = $(UTILS) $(GEOM)
 
 
 # search path for modules

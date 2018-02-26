@@ -4,65 +4,51 @@
 #include <gsl/gsl_matrix_complex_double.h>
 #include <gsl/gsl_complex_math.h>
 
-// typical values:
-//
-// (1,0) GEOMETRY
-// dim=5    SCALE=0.075
-// dim=15   SCALE=0.013
-//
-// (2,0) GEOMETRY
-// dim=5    SCALE=0.035
-//
-// (0,2) GEOMETRY
-// dim=5     SCALE=0.035
-// dim=10    SCALE=0.009
-// dim=15    SCALE=0.0077
-// dim=30    SCALE=0.0015
-//
-// (1,3) GEOMETRY
-// dim=5, g=-3.65       SCALE=0.045 (acc. rate approx 0.25)
-// dim=7, g=-3.70       SCALE=0.022 (acc. rate approx 0.25)
-
-
 #if defined MAIN_PROGRAM
   #define EXTERN
 #else
   #define EXTERN extern
 #endif
 
+#define ABS2(a) gsl_complex_abs2(a)
+#define CA(a,b) gsl_complex_add(a, b)
+#define CAR(a,b) gsl_complex_add_real(a, b)
+#define CM(a,b) gsl_complex_mul(a, b)
+#define CMR(a,b) gsl_complex_mul_real(a, b)
+#define CC(a) gsl_complex_conjugate(a)
+#define MG(m,i,j) gsl_matrix_complex_get(m, i, j)
+
+
+// CLIFFORD RELATED FUNCTIONS **********************************************
+#define CLIFF_P 2
+#define CLIFF_Q 0
+
+// The following macro allows to simplify clifford-specific functions.
+// For example, if CLIFF_P and CLIFF_Q are set to 2 and 0 respectively,
+// then FUNCTION(init_gamma, CLIFF_P, CLIFF_Q) expands to init_gamma20.
+#define PASTER(name, x, y) name ## x ## y
+#define FUNCTION(name, x, y) PASTER(name, x, y)
+// Note: PASTER is seemingly redundant, but it is necessary in order for
+// the ## operator to expand correctly.
+
+
 // GLOBAL VARIABLES ********************************************************
-
-#define GEOM20
-
 EXTERN int dim;
-#ifndef GAP
-    #define GAP (1000)
-#endif
-#ifndef ADJ
-    #define ADJ (1000)
-#endif
 EXTERN int nH;
 EXTERN int nL;
-#ifndef nHL
-    #define nHL (nH+nL) 
-#endif
 EXTERN double SCALE;        // metropolis scale factor
 EXTERN double G;            // coupling constants
 EXTERN double S;            // action
 EXTERN int Nsw;             // number of simulation sweeps
-EXTERN int Ntherm;          // number of thermalization sweeps
+#define GAP (1000)
+#define ADJ (1000)
+#define nHL (nH+nL) 
 
 // H and L matrices
 EXTERN gsl_matrix_complex** MAT;
 EXTERN int* e;
-EXTERN double* tr;     //this is for the traces of the H matrices
-EXTERN double* tr2;    //this is fot the traces squared of the H matrices
 
-// displacement matrix for metropolis move
-// (just an auxiliary matrix but it is needed
-EXTERN gsl_matrix_complex* M;
-
-// dirac matrix for consistency check
+// dirac matrix
 EXTERN int dimG;
 EXTERN int dimD;
 EXTERN gsl_matrix_complex* DIRAC;

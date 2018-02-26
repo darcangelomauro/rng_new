@@ -3,12 +3,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <gsl/gsl_complex.h>
 #include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_matrix_complex_double.h>
-#include <gsl/gsl_blas.h>
 #include "geom.h"
-#include "matop.h"
 #include "global.h"
 
 // TYPE (0,3) GEOMETRY

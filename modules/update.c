@@ -3,29 +3,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
+#include <gsl/gsl_randist.h>
+#include <gsl/gsl_blas.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_complex.h>
-#include <gsl/gsl_vector_double.h>
+#include "global.h"
 #include "update.h"
 #include "matop.h"
-#include "fileop.h"
-#include "math.h"
-#include <gsl/gsl_randist.h>
-#include <gsl/gsl_sort_vector.h>
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_cblas.h>
-#include "global.h"
-#include "macros.h"
-#include "data.h"
-#include "statistics.h"
+#include "codeop.h"
+#include "printop.h"
+#include "geom.h"
 
-#define ABS2(a) gsl_complex_abs2(a)
-#define CA(a,b) gsl_complex_add(a, b)
-#define CAR(a,b) gsl_complex_add_real(a, b)
-#define CM(a,b) gsl_complex_mul(a, b)
-#define CMR(a,b) gsl_complex_mul_real(a, b)
-#define CC(a) gsl_complex_conjugate(a)
-#define MG(m,i,j) gsl_matrix_complex_get(m, i, j)
 
 void overwrite_init_file(char* name_init)
 {
@@ -35,7 +24,6 @@ void overwrite_init_file(char* name_init)
     fprintf(finit, "%d\n", nL);
     fprintf(finit, "%lf\n", SCALE);
     fprintf(finit, "%lf\n", G);
-    fprintf(finit, "%d\n", Ntherm);
     fprintf(finit, "%d\n", Nsw);
     fclose(finit);
 }
@@ -62,67 +50,22 @@ void init_data(char* name_init)
     narg += fscanf(finit, "%lf", &SCALE);
     // initialize coupling constant
     narg += fscanf(finit, "%lf", &G);
-    // initialize number of thermalization sweeps
-    narg += fscanf(finit, "%d", &Ntherm);
     // initialize number of simulation sweeps
     narg += fscanf(finit, "%d", &Nsw);
 
-    if(narg < 7)
+    if(narg < 6)
     {
         printf("Error: not enough data in %s\n", name_init);
         exit(EXIT_FAILURE);
     }
 
     // initialize dimD
-    dimG = (int)pow(2., (int)(cliff_p+cliff_q)/2);
+    dimG = (int)pow(2., (int)(CLIFF_P + CLIFF_Q)/2);
     dimD = dimG*dim*dim;
 }
 
-/*
-void init_data_analysis()
-{
-    // read input data
-    FILE* finit = fopen("init_analysis.txt", "r");
-    if(finit == NULL)
-    {
-        printf("Error: input_analysis.txt not found\n");
-        exit(EXIT_FAILURE);
-    }
 
-    int narg;
-    // initialize matrix dimension
-    narg = fscanf(finit, "%d", &dim);
-    // initialize #H matrices
-    narg += fscanf(finit, "%d", &nH);
-    // initialize #L matrices
-    narg += fscanf(finit, "%d", &nL);
-    // initialize SCALE
-    narg += fscanf(finit, "%lf", &SCALE);
-    // initialize coupling constant
-    narg += fscanf(finit, "%lf", &G);
-    // initialize number of thermalization sweeps
-    narg += fscanf(finit, "%d", &Ntherm);
-    // initialize number of simulation sweeps
-    narg += fscanf(finit, "%d", &Nsw);
-
-    if(narg < 7)
-    {
-        printf("Error: not enough data in init_analysis.txt\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // initialize dimD
-    if(nHL == 1)
-        dimG = 1;
-    else if(nHL<5)
-        dimG = 2;
-    else
-        dimG = 4;
-    dimD = dimG*dim*dim;
-}
-*/
-
-void init_cold(double Sfunc(), void init_gamma())
+void init_cold(double Sfunc())
 {
     //initialize H matrices to unity
     MAT = malloc(nHL*sizeof(gsl_matrix_complex*));
@@ -141,7 +84,7 @@ void init_cold(double Sfunc(), void init_gamma())
     gamma = malloc(nHL*sizeof(gsl_matrix_complex*));
     for(int i=0; i<nHL; i++)
         gamma[i] = gsl_matrix_complex_calloc(dimG, dimG);
-    init_gamma();
+    FUNCTION(init_gamma, CLIFF_P, CLIFF_Q)();
 
     // initialize gamma_table
     gamma_table = malloc(5*sizeof(gsl_complex*));
@@ -186,7 +129,7 @@ void init_cold(double Sfunc(), void init_gamma())
 
 
 //initializes H and L with random matrices
-void init_hot(double Sfunc(), void init_gamma(), gsl_rng* r)
+void init_hot(double Sfunc(), gsl_rng* r)
 {
     //initialize H matrices randomly
     MAT = malloc(nHL*sizeof(gsl_matrix_complex*));
@@ -205,7 +148,7 @@ void init_hot(double Sfunc(), void init_gamma(), gsl_rng* r)
     gamma = malloc(nHL*sizeof(gsl_matrix_complex*));
     for(int i=0; i<nHL; i++)
         gamma[i] = gsl_matrix_complex_calloc(dimG, dimG);
-    init_gamma();
+    FUNCTION(init_gamma, CLIFF_P, CLIFF_Q)();
 
     // initialize gamma_table
     gamma_table = malloc(5*sizeof(gsl_complex*));
@@ -284,7 +227,7 @@ int doit(int i, int step)
 
 int move(double deltaS(int, int, int, gsl_complex), gsl_rng* r)
 {
-    // check is what will be returned
+    // accepted is what will be returned
     int accepted = 0;
 
     // MONTECARLO MOVE PROPOSAL
@@ -468,7 +411,7 @@ char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), char
 {
     // Initialize
     init_data(name_init);
-    GEOM_CHECK();
+    FUNCTION(geom_check, CLIFF_P, CLIFF_Q)();
    
     // Generate unique filename
     char* code = generate_code(5, r);
@@ -491,7 +434,7 @@ char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), char
 
     // Simulation
     print_time(fdata, "start simulation:");
-    init_cold(Sfunc, P_gamma);
+    init_cold(Sfunc);
     SCALE_autotune(0.21, 0.3, deltaS, r);
     printf("Auto tuned SCALE: %lf\n", SCALE);
     double ar = 0.;
@@ -538,7 +481,7 @@ void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex)
     }
     
     int narg;
-    int dim_, nH_, nL_, Ntherm_, Nsw_;
+    int dim_, nH_, nL_, Nsw_;
     double SCALE_, G_;
     // initialize matrix dimension
     narg = fscanf(finit, "%d", &dim_);
@@ -550,12 +493,10 @@ void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex)
     narg += fscanf(finit, "%lf", &SCALE_);
     // initialize coupling constant
     narg += fscanf(finit, "%lf", &G_);
-    // initialize number of thermalization sweeps
-    narg += fscanf(finit, "%d", &Ntherm_);
     // initialize number of simulation sweeps
     narg += fscanf(finit, "%d", &Nsw_);
     
-    if(narg < 7)
+    if(narg < 6)
     {
         printf("Error: not enough data in %s\n", name_init);
         exit(EXIT_FAILURE);
@@ -578,7 +519,7 @@ void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex)
     printf("Starting variable G simulation with data:\n");
     printf("%d values of G uniformly distributed in range [%lf, %lf]\n", REP_G, G_, (G_ + (REP_G-1)*INCR_G));
     printf("dim: %d\n", dim_);
-    printf("geometry: (%d, %d)\n", cliff_p, cliff_q);
+    printf("geometry: (%d, %d)\n", CLIFF_P, CLIFF_Q);
     printf("Codename: %s\n", varG_code);
     printf("*********\n");
 
@@ -588,8 +529,8 @@ void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex)
     fprintf(fvarG_data, "G initial: %lf\n", G_);
     fprintf(fvarG_data, "G final: %lf\n", (G_ + (REP_G-1)*INCR_G));
     fprintf(fvarG_data, "dim: %d\n", dim_);
-    fprintf(fvarG_data, "p: %d\n", cliff_p);
-    fprintf(fvarG_data, "q: %d\n", cliff_q);
+    fprintf(fvarG_data, "p: %d\n", CLIFF_P);
+    fprintf(fvarG_data, "q: %d\n", CLIFF_Q);
 
     // simulate with variable G
     print_time(fvarG_data, "start simulation:");
@@ -627,7 +568,6 @@ void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex)
     fprintf(finit2, "%d\n", nL_);
     fprintf(finit2, "%lf\n", SCALE_);
     fprintf(finit2, "%lf\n", G_);
-    fprintf(finit2, "%d\n", Ntherm_);
     fprintf(finit2, "%d\n", Nsw_);
     fclose(finit2);
     free(name_init);

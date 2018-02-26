@@ -1,12 +1,9 @@
-#define FILEOP_C
-#include "fileop.h"
+#define CODEOP_C
+
 #include <string.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_rng.h>
-
-#ifndef M_PI
-#define M_PI 3.14159265358979
-#endif
+#include "codeop.h"
 
 char* generate_code(int n, gsl_rng* r)
 {

@@ -2,29 +2,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_complex.h>
-#include <gsl/gsl_vector_double.h>
-#include "update.h"
-#include "matop.h"
-#include "fileop.h"
-#include "math.h"
-#include <gsl/gsl_randist.h>
-#include <gsl/gsl_sort_vector.h>
+#include <math.h>
+#include <gsl/gsl_matrix_complex_double.h>
+#include <gsl/gsl_complex_math.h>
 #include <gsl/gsl_blas.h>
 #include "global.h"
-#include "macros.h"
-#include "data.h"
-#include "statistics.h"
+#include "matop.h"
 
-#define ABS2(a) gsl_complex_abs2(a)
-#define CA(a,b) gsl_complex_add(a, b)
-#define CAR(a,b) gsl_complex_add_real(a, b)
-#define CM(a,b) gsl_complex_mul(a, b)
-#define CMR(a,b) gsl_complex_mul_real(a, b)
-#define CC(a) gsl_complex_conjugate(a)
-#define MG(m,i,j) gsl_matrix_complex_get(m, i, j)
 
 double delta2(int uM, int I, int J, gsl_complex z)
 {
