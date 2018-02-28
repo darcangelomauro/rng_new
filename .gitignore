@@ -43,3 +43,6 @@ mpi_main/*
 !mpi_main/*.c
 !mpi_main/*.md
 !mpi_main/Makefile
+!mpi_main/master_init.txt
+!mpi_main/master_gval.txt
+!mpi_main/*.py
