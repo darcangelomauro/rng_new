@@ -32,6 +32,9 @@ main/*
 !main/*.c
 !main/*.md
 !main/Makefile
+!main/master_init.txt
+!main/master_gval.txt
+!main/*.py
 
 
 # *** mpi_main ***

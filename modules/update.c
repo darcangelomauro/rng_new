@@ -257,7 +257,7 @@ int move(double deltaS(int, int, int, gsl_complex), gsl_rng* r)
         x = -1 + 2*gsl_rng_uniform(r);
 
         // metropolis scale
-        x *= 2.*SCALE;
+        x *= SCALE;
 
         z = gsl_complex_rect(x, 0.);
     }
@@ -291,7 +291,7 @@ int move(double deltaS(int, int, int, gsl_complex), gsl_rng* r)
         else
         {
             double w = GSL_REAL(MG(MAT[uM], i, i));
-            gsl_matrix_complex_set(MAT[uM], i, i, gsl_complex_rect(x+w, 0.));
+            gsl_matrix_complex_set(MAT[uM], i, i, gsl_complex_rect(2.*x+w, 0.));
         }
 
         // update action
@@ -316,7 +316,7 @@ int move(double deltaS(int, int, int, gsl_complex), gsl_rng* r)
             else
             {
                 double w = GSL_REAL(MG(MAT[uM], i, i));
-                gsl_matrix_complex_set(MAT[uM], i, i, gsl_complex_rect(x+w, 0.));
+                gsl_matrix_complex_set(MAT[uM], i, i, gsl_complex_rect(2.*x+w, 0.));
             }
 
             // update action

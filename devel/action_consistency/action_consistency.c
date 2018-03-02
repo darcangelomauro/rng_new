@@ -16,6 +16,7 @@
 #include "geom.h"
 
 #define REP (10)
+#define ITER (1)
 #define ACTION_B actionD4D2_bruteforce
 #define TYPE D4D2t20
 #define MOD0
@@ -42,14 +43,13 @@ int main()
     // simulation
     for(int idx=0; idx<REP; idx++)
     {
+        if(!(idx%ITER))
+            printf("Iteration %d\n", idx);
+
         // Initialize
         init_data("init.txt");
         FUNCTION(geom_check, CLIFF_P, CLIFF_Q)();
         init_cold(FUNCTION(dirac, 42, MOD0));
-        
-        // Autotune
-        SCALE_autotune(0.2, 0.3, FUNCTION(delta, 42, MOD0), r);
-        printf("Auto tuned SCALE: %lf\n", SCALE);
         
         // Simulation
         double ar = 0.;

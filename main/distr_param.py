@@ -5,7 +5,7 @@ first_rank = int(input("Input first rank\n"))
 
 
 for i in range(first_rank, first_rank+world_size):
-
+    
     r_init_fileobj = open("master_init.txt", "r")
     r_gval_fileobj = open("master_gval.txt", "r")
     
