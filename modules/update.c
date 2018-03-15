@@ -532,6 +532,7 @@ void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex)
     fprintf(fvarG_data, "dim: %d\n", dim_);
     fprintf(fvarG_data, "p: %d\n", CLIFF_P);
     fprintf(fvarG_data, "q: %d\n", CLIFF_Q);
+    fprintf(fvarG_data, "Nsw: %d\n", Nsw_);
 
     // simulate with variable G
     print_time(fvarG_data, "start simulation:");
