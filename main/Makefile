@@ -42,7 +42,7 @@ INCPATH = ../include /home/pmxmd10/gsl/include
 
 # additional libraries to be included 
  
-LIBS = m gsl openblas
+LIBS = m gsl gslcblas
 
 LIBPATH = /home/pmxmd10/gsl/lib
 
@@ -57,7 +57,7 @@ CFLAGS = -std=c99 -pedantic -fstrict-aliasing -Wall -Wno-long-long \
 
 SHELL=/bin/bash
 
-CC=mpicc
+CC=gcc
 
 PGMS= $(MAIN) $(MODULES)
 

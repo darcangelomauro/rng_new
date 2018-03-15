@@ -121,7 +121,7 @@ void init_cold(double Sfunc())
     }
     
     // alloc dirac
-    DIRAC = gsl_matrix_complex_calloc(dimD, dimD);
+    //DIRAC = gsl_matrix_complex_calloc(dimD, dimD);
     
     // initialize action
     S = Sfunc();
@@ -185,7 +185,7 @@ void init_hot(double Sfunc(), gsl_rng* r)
     }
     
     // alloc dirac
-    DIRAC = gsl_matrix_complex_calloc(dimD, dimD);
+    //DIRAC = gsl_matrix_complex_calloc(dimD, dimD);
 
     // initialize action
     S = Sfunc();
@@ -213,7 +213,7 @@ void simulation_free()
     free(gamma_table[4]);
     free(gamma_table);
 
-    gsl_matrix_complex_free(DIRAC);
+    //gsl_matrix_complex_free(DIRAC);
 }
 
 
@@ -335,11 +335,12 @@ int move(double deltaS(int, int, int, gsl_complex), gsl_rng* r)
 double sweep(double deltaS(int, int, int, gsl_complex), gsl_rng* r)
 {
     double sum = 0.;
-    for(int i=0; i<dim*dim*nHL; i++)
+    double nmoves = ((double)dim*(dim-1.)/2. + dim)*nHL;
+    for(int i=0; i<nmoves; i++)
         sum += move(deltaS, r);
 
 
-    return sum/(double)(dim*dim*nHL);
+    return sum/(double)(nmoves);
 }
 
 
@@ -347,9 +348,9 @@ double sweep(double deltaS(int, int, int, gsl_complex), gsl_rng* r)
 // between minTarget and maxTarget (very rudimental and ugly, seems to work reasonably well)
 void SCALE_autotune(double minTarget, double maxTarget, double deltaS(int, int, int, gsl_complex), gsl_rng* r)
 {
-    int n1 = 50;
-    int n2 = 50;
-    int m = 50;
+    int n1 = 5;
+    int n2 = 5;
+    int m = 10;
     double limit = 1e-5;
     double ar = 0.;
 
@@ -433,10 +434,10 @@ char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), char
 
 
     // Simulation
-    print_time(fdata, "start simulation:");
     init_cold(Sfunc);
-    SCALE_autotune(0.21, 0.3, deltaS, r);
+    SCALE_autotune(0.2, 0.3, deltaS, r);
     printf("Auto tuned SCALE: %lf\n", SCALE);
+    print_time(fdata, "start simulation:");
     double ar = 0.;
     for(int i=0; i<Nsw; i++)
     {

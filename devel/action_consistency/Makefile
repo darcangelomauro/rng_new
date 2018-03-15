@@ -50,7 +50,7 @@ LIBPATH = /home/pmxmd10/gsl/lib
 # scheduling and optimization options (such as -DSSE -DSSE2 -DP4)
  
 CFLAGS = -std=c99 -pedantic -fstrict-aliasing -Wall -Wno-long-long  \
-         -Werror -fPIC -DHAVE_INLINE -pg
+         -Werror -fPIC -DHAVE_INLINE 
  
 
 ############################## do not change ###################################

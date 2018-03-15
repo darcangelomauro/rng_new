@@ -14,13 +14,6 @@ devel/matop_test/*
 !devel/matop_test/*.c
 !devel/matop_test/Makefile
 
-# ignore everything
-devel/fileop_test/*
-
-# unignore .c and Makefile
-!devel/fileop_test/*.c
-!devel/fileop_test/Makefile
-
 
 
 # *** main ***
@@ -28,7 +21,7 @@ devel/fileop_test/*
 # ignore everything
 main/*
 
-# unignore .c, .md and Makefile
+# unignore .c, .py, .md and Makefile
 !main/*.c
 !main/*.md
 !main/Makefile
@@ -42,7 +35,7 @@ main/*
 # ignore everything
 mpi_main/*
 
-# unignore .c, .md and Makefile
+# unignore .c, .py, .md and Makefile
 !mpi_main/*.c
 !mpi_main/*.md
 !mpi_main/Makefile

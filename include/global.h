@@ -20,8 +20,8 @@
 
 
 // CLIFFORD RELATED FUNCTIONS **********************************************
-#define CLIFF_P 1
-#define CLIFF_Q 3
+#define CLIFF_P 2
+#define CLIFF_Q 0
 
 // The following macro allows to simplify clifford-specific functions.
 // For example, if CLIFF_P and CLIFF_Q are set to 2 and 0 respectively,
@@ -40,7 +40,7 @@ EXTERN double SCALE;        // metropolis scale factor
 EXTERN double G;            // coupling constants
 EXTERN double S;            // action
 EXTERN int Nsw;             // number of simulation sweeps
-#define GAP (1000)
+#define GAP (100)
 #define ADJ (1000)
 #define nHL (nH+nL) 
 
