@@ -20,8 +20,8 @@
 
 
 // CLIFFORD RELATED FUNCTIONS **********************************************
-#define CLIFF_P 2
-#define CLIFF_Q 0
+#define CLIFF_P 1
+#define CLIFF_Q 3
 
 // The following macro allows to simplify clifford-specific functions.
 // For example, if CLIFF_P and CLIFF_Q are set to 2 and 0 respectively,

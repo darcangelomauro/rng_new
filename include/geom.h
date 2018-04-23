@@ -16,6 +16,15 @@ extern void init_gamma02();
 extern void geom_check11();
 extern void init_gamma11();
 
+extern void geom_check30();
+extern void init_gamma30();
+
+extern void geom_check21();
+extern void init_gamma21();
+
+extern void geom_check12();
+extern void init_gamma12();
+
 extern void geom_check03();
 extern void init_gamma03();
 
