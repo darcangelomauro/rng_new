@@ -13,9 +13,9 @@
 int main(int argc, char** argv)
 {
     // ****************************************** HANDLE ARGUMENTS ******************************
-    if(argc != 2)
+    if(argc != 3)
     {
-        printf("Error: No array index (or too many indices) passed as argument(s)\n");
+        printf("Error: Not enough or too many arguments. The arguments must be [rank] and [codename]\n");
         exit(EXIT_FAILURE);
     }
     int rank = strtol(argv[1], NULL, 10);
@@ -61,11 +61,14 @@ int main(int argc, char** argv)
 
 
     // ****************************************** SIMULATION ******************************
-    multicode_wrapper(dirac42, delta42, incr_G, rep_G, rank, r);
+    char* varG_code = alloc_rank_filename(rank, argv[2]);
+    multicode_wrapper(dirac42, delta42, incr_G, rep_G, rank, varG_code, r);
     
 
 
     // ****************************************** FREE MEMORY ******************************
+    // Free codename
+    free(varG_code);
     // Free random number generator
     gsl_rng_free(r);
 }

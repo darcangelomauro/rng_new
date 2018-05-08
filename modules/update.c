@@ -408,18 +408,22 @@ void SCALE_autotune(double minTarget, double maxTarget, double deltaS(int, int, 
 // the thermalization part outputs two files "thermX.txt" (where X is 1 or 2) with the action value
 // the simulation part outputs two files "simS.txt" "simHL.txt" with the action and the H and L matrices
 // returns simulation code
-char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), char* name_init, gsl_rng* r)
+char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), int rank, gsl_rng* r)
 {
     // Initialize
+    char* name_init = alloc_rank_filename(rank, "init");  
     init_data(name_init);
+    free(name_init);
     FUNCTION(geom_check, CLIFF_P, CLIFF_Q)();
    
     // Generate unique filename
     char* code = generate_code(5, r);
-    printf("%s\n", code);
-    char* name_data = alloc_coded_filename("data", code);
-    char* name_simS = alloc_coded_filename("simS", code);
-    char* name_simHL = alloc_coded_filename("simHL", code);
+    char* filename = alloc_rank_filename(rank, code);
+    free(code);
+    printf("%s\n", filename);
+    char* name_data = alloc_coded_filename("data", filename);
+    char* name_simS = alloc_coded_filename("simS", filename);
+    char* name_simHL = alloc_coded_filename("simHL", filename);
 
     FILE* fdata = fopen(name_data, "w");
     FILE* fsimS = fopen(name_simS, "w");
@@ -460,7 +464,7 @@ char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), char
 
     printf("acceptance rate: %lf\n", ar/(double)Nsw);
 
-    return code;
+    return filename;
 }
 
 
@@ -470,7 +474,7 @@ char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), char
 // file "XXXXX_varG_args.txt": collects list of codes needed to run multicode_analysis_main
 // file "XXXXX_varG_G_args.txt": shows correspondence between G and code
 // 
-void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex), double INCR_G, int REP_G, int rank, gsl_rng* r)
+void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex), double INCR_G, int REP_G, int rank, char* varG_code, gsl_rng* r)
 {
     // copy init[rank].txt
     char* name_init = alloc_rank_filename(rank, "init");  
@@ -505,8 +509,6 @@ void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex)
     fclose(finit);
 
 
-    // generate code for varG simulation
-    char* varG_code = generate_code(5, r);
     // generate output files
     char* name_varG_data = alloc_coded_filename("varG_data", varG_code);
     char* name_varG_args = alloc_coded_filename("varG_args", varG_code);
@@ -540,7 +542,7 @@ void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex)
     print_time(fvarG_data, "start simulation:");
     for(int i=0; i<REP_G; i++)
     {
-        char* code = simulation(Sfunc, deltaS, name_init, r);
+        char* code = simulation(Sfunc, deltaS, rank, r);
         fprintf(fvarG_args, "%s ", code);
         fprintf(fvarG_G_args, "%lf %s\n", G, code);
         printf("dim: %d,    G: %lf\n", dim, G);
@@ -551,7 +553,6 @@ void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex)
     print_time(fvarG_data, "end simulation:");
 
     // free memory
-    free(varG_code);
     free(name_varG_data);
     free(name_varG_args);
     free(name_varG_G_args);

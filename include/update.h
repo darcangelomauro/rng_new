@@ -14,8 +14,8 @@ extern int doit(int i, int step);
 extern int move(double deltaS(int, int, int, gsl_complex), gsl_rng* r);
 extern double sweep(double deltaS(int, int, int, gsl_complex), gsl_rng* r);
 extern void SCALE_autotune(double minTarget, double maxTarget, double deltaS(int, int, int, gsl_complex), gsl_rng* r);
-extern char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), char* name_init, gsl_rng* r);
-extern void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex), double INCR_G, int REP_G, int rank, gsl_rng* r);
+extern char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), int rank, gsl_rng* r);
+extern void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex), double INCR_G, int REP_G, int rank, char* varG_code, gsl_rng* r);
 extern void adjust();
 
 #endif
