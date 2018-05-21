@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 
 
     // ****************************************** SIMULATION ******************************
-    char* varG_code = alloc_rank_filename(rank, argv[2]);
+    char* varG_code = alloc_rank_filename2(rank, argv[2]);
     multicode_wrapper(dirac42, delta42, incr_G, rep_G, rank, varG_code, r);
     
 

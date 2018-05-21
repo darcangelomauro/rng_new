@@ -408,7 +408,7 @@ void SCALE_autotune(double minTarget, double maxTarget, double deltaS(int, int, 
 // the thermalization part outputs two files "thermX.txt" (where X is 1 or 2) with the action value
 // the simulation part outputs two files "simS.txt" "simHL.txt" with the action and the H and L matrices
 // returns simulation code
-char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), int rank, gsl_rng* r)
+char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), int rank, char* varG_code, gsl_rng* r)
 {
     // Initialize
     char* name_init = alloc_rank_filename(rank, "init");  
@@ -418,7 +418,7 @@ char* simulation(double Sfunc(), double deltaS(int, int, int, gsl_complex), int 
    
     // Generate unique filename
     char* code = generate_code(5, r);
-    char* filename = alloc_rank_filename(rank, code);
+    char* filename = alloc_coded_filename2(code, varG_code);
     free(code);
     printf("%s\n", filename);
     char* name_data = alloc_coded_filename("data", filename);
@@ -542,7 +542,7 @@ void multicode_wrapper(double Sfunc(), double deltaS(int, int, int, gsl_complex)
     print_time(fvarG_data, "start simulation:");
     for(int i=0; i<REP_G; i++)
     {
-        char* code = simulation(Sfunc, deltaS, rank, r);
+        char* code = simulation(Sfunc, deltaS, rank, varG_code, r);
         fprintf(fvarG_args, "%s ", code);
         fprintf(fvarG_G_args, "%lf %s\n", G, code);
         printf("dim: %d,    G: %lf\n", dim, G);

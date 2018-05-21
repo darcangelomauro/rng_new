@@ -5,7 +5,9 @@
 
 extern char* generate_code(int n, gsl_rng* r);
 extern char* alloc_coded_filename(char* suffix, char* code);
+extern char* alloc_coded_filename2(char* suffix, char* code);
 extern char* alloc_folder_filename(char* suffix, char* folder);
 extern char* alloc_rank_filename(int rank, char* prefix);
+extern char* alloc_rank_filename2(int rank, char* prefix);
 
 #endif
