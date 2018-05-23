@@ -13,12 +13,14 @@
 int main(int argc, char** argv)
 {
     // ****************************************** HANDLE ARGUMENTS ******************************
-    if(argc != 3)
+    if(argc != 4)
     {
-        printf("Error: Not enough or too many arguments. The arguments must be [rank] and [codename]\n");
+        printf("Error: Not enough or too many arguments. The arguments must be [rank] [codename] [globalseed]\n");
         exit(EXIT_FAILURE);
     }
     int rank = strtol(argv[1], NULL, 10);
+    int globalseed = strtol(argv[3], NULL, 10);
+    printf("Random seed: %d\n", globalseed+rank);
 
 
     // ****************************************** RNG STUFF ******************************
@@ -27,8 +29,7 @@ int main(int argc, char** argv)
     gsl_rng* r;
     T = gsl_rng_ranlxd1;
     r = gsl_rng_alloc(T);
-    gsl_rng_set(r, time(NULL) + rank); // SUBSTITUTE RANK WITH ARRAY INDEX
-
+    gsl_rng_set(r, globalseed + rank);
 
 
     // ****************************************** READ GVAL FILE ******************************
