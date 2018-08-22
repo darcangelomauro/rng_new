@@ -224,7 +224,7 @@ int doit(int i, int step)
     if(i != 0)
         return !(i%step);
     else
-        return 0
+        return 0;
 }
 
 
