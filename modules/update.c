@@ -221,7 +221,10 @@ void simulation_free()
 // returns 1 if i % step == 0
 int doit(int i, int step)
 {
-    return !(i%step);
+    if(i != 0)
+        return !(i%step);
+    else
+        return 0
 }
 
 
